@@ -320,6 +320,7 @@
             return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
         }
 
+        // Improved connect wallet flow with better error handling
         connectWalletBtn.addEventListener('click', async () => {
             if (typeof window.ethereum === 'undefined') {
                 alert('MetaMask is not installed. Please install it to use this feature.');
@@ -339,32 +340,42 @@
                     score: 0,
                     createdAt: new Date()
                 }, { merge: true });
+                
+                // Manually trigger a UI update because onAuthStateChanged might not fire for anonymous sign-in if already signed in.
+                updateUIAfterLogin(user);
 
             } catch (error) {
                 console.error("Wallet connection failed:", error);
-                alert("Failed to connect wallet. Please try again.");
+                if (error.code === 4001) {
+                    alert('Connection request rejected. Please approve the request in MetaMask to connect your wallet.');
+                } else {
+                    alert(`Failed to connect wallet. Please see console for details.`);
+                }
             }
         });
+        
+        async function updateUIAfterLogin(user) {
+            if (!user || !user.isAnonymous) return;
+
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if (docSnap.exists() && docSnap.data().wallet) {
+                const walletAddress = docSnap.data().wallet;
+                userDisplay.textContent = formatAddress(walletAddress);
+
+                authLinks.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                userProfile.classList.add('flex');
+                gameSection.classList.remove('hidden');
+            }
+        }
+
 
         // --- Auth State Logic ---
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user && user.isAnonymous) {
-                const userDocRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(userDocRef);
-                
-                // Only show the user as fully logged in if their wallet document exists
-                if (docSnap.exists() && docSnap.data().wallet) {
-                    const walletAddress = docSnap.data().wallet;
-                    userDisplay.textContent = formatAddress(walletAddress);
-
-                    authLinks.classList.add('hidden');
-                    userProfile.classList.remove('hidden');
-                    userProfile.classList.add('flex');
-                    gameSection.classList.remove('hidden');
-                }
-                // If the doc doesn't exist, we do nothing. The user is anonymously signed in,
-                // but the UI remains in the "logged out" state until the connection process completes
-                // and creates the document, which will re-trigger this listener.
+                updateUIAfterLogin(user);
             } else {
                 // User is signed out
                 authLinks.classList.remove('hidden');
