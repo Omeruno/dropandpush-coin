@@ -39,16 +39,16 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
-                    <a href="#" class="font-fredoka text-2xl text-white">Drop<span class="text-[#a8ff78]">And</span>Push</a>
+                    <a href="#" class="font-fredoka text-xl md:text-2xl text-white">Drop<span class="text-[#a8ff78]">And</span>Push</a>
                 </div>
-                <div id="auth-links" class="flex items-center space-x-4">
-                    <button id="login-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition">Login</button>
-                    <button id="signup-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-2 px-4 rounded-lg transition glow-effect">Sign Up</button>
+                <div id="auth-links" class="flex items-center space-x-2 md:space-x-4">
+                    <button id="login-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 md:px-4 text-sm md:text-base rounded-lg transition">Login</button>
+                    <button id="signup-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-2 px-3 md:px-4 text-sm md:text-base rounded-lg transition glow-effect">Sign Up</button>
                 </div>
-                <div id="user-profile" class="hidden items-center space-x-4">
-                     <span id="user-email" class="text-gray-300"></span>
-                    <button id="profile-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">Profile</button>
-                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Logout</button>
+                <div id="user-profile" class="hidden items-center space-x-2 md:space-x-4">
+                     <span id="user-email" class="hidden sm:inline text-gray-300 text-sm"></span>
+                    <button id="profile-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 md:px-4 text-sm md:text-base rounded-lg transition">Profile</button>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 md:px-4 text-sm md:text-base rounded-lg transition">Logout</button>
                 </div>
             </div>
         </div>
@@ -59,47 +59,47 @@
     <div class="container mx-auto p-4 md:p-8">
 
         <!-- ======== Блок Hero: Название и Логотип ======== -->
-        <header class="text-center py-12">
-            <img src="images/logo.png" alt="DropAndPush Logo" class="mx-auto mb-6 w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-[#a8ff78] glow-effect object-contain">
+        <header class="text-center py-8 md:py-12">
+            <img src="images/logo.png" alt="DropAndPush Logo" class="mx-auto mb-6 w-40 h-40 md:w-64 md:h-64 rounded-full border-4 border-[#a8ff78] glow-effect object-contain">
             <h1 class="font-fredoka text-5xl md:text-7xl lg:text-8xl text-white drop-shadow-lg">
                 Drop<span class="text-[#a8ff78]">And</span>Push
             </h1>
             <p class="font-fredoka text-2xl md:text-3xl text-yellow-300 mt-2">$DNP</p>
-            <p class="mt-6 text-xl md:text-2xl font-bold text-gray-300">
+            <p class="mt-6 text-lg md:text-2xl font-bold text-gray-300 max-w-xl mx-auto">
                 When life drops, just Push!
             </p>
         </header>
 
-        <main class="space-y-12">
+        <main class="space-y-12 md:space-y-16">
             <!-- ======== Блок с игрой (виден только авторизованным) ======== -->
-            <section id="game-section" class="hidden text-center bg-purple-900/50 p-10 rounded-2xl shadow-lg border-2 border-purple-500">
+            <section id="game-section" class="hidden text-center bg-purple-900/50 p-6 md:p-10 rounded-2xl shadow-lg border-2 border-purple-500">
                 <h2 class="font-fredoka text-3xl md:text-5xl text-white mb-4">The DNP Gym is Open!</h2>
-                <p class="text-xl text-gray-300 font-semibold mb-6">Start your training session!</p>
+                <p class="text-lg md:text-xl text-gray-300 font-semibold mb-6">Start your training session!</p>
                 <!-- Placeholder for the game -->
                 <div class="bg-gray-900/50 aspect-video max-w-2xl mx-auto rounded-lg flex items-center justify-center">
-                    <p class="text-gray-400 font-fredoka text-2xl">MINI-GAME COMING SOON...</p>
+                    <p class="text-gray-400 font-fredoka text-xl md:text-2xl">MINI-GAME COMING SOON...</p>
                 </div>
             </section>
         
             <!-- ======== Блок Описания ======== -->
-            <section id="about" class="bg-[#1e1e3f] p-8 rounded-2xl shadow-lg border-2 border-purple-500 transform hover:scale-105 transition-transform duration-300">
+            <section id="about" class="bg-[#1e1e3f] p-6 md:p-8 rounded-2xl shadow-lg border-2 border-purple-500 transform hover:scale-105 transition-transform duration-300">
                 <h2 class="font-fredoka text-3xl md:text-4xl text-center mb-4 text-[#a8ff78]">Meme coin for crypto warriors!</h2>
-                <p class="text-lg text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+                <p class="text-base md:text-lg text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
                     Whenever the price drops, don’t panic — do a push-up and bounce back.
                 </p>
-                <div class="text-center mt-6 font-bold text-yellow-300 text-md md:text-lg">
+                <div class="text-center mt-6 font-bold text-yellow-300 text-sm md:text-lg flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
                     <span>100% MEME-POWERED</span>
-                    <span class="mx-2">|</span>
+                    <span class="hidden sm:inline">|</span>
                     <span>ZERO UTILITY</span>
-                    <span class="mx-2">|</span>
+                     <span class="hidden sm:inline">|</span>
                     <span>PURE FUN</span>
                 </div>
             </section>
 
             <!-- ======== Блок Технических Деталей (Токеномика) ======== -->
-            <section id="tokenomics" class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg border-2 border-yellow-400 transform hover:scale-105 transition-transform duration-300">
+            <section id="tokenomics" class="bg-[#2a2a4e] p-6 md:p-8 rounded-2xl shadow-lg border-2 border-yellow-400 transform hover:scale-105 transition-transform duration-300">
                 <h2 class="font-fredoka text-3xl md:text-4xl text-center mb-6 text-yellow-300">Technical Details</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto text-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto text-base md:text-lg">
                     <div class="bg-gray-800/50 p-4 rounded-lg flex justify-between items-center">
                         <span class="font-bold text-gray-400">Name:</span>
                         <span class="font-mono text-[#a8ff78]">DropAndPush</span>
@@ -120,13 +120,43 @@
             </section>
 
             <!-- ======== Дорожная карта (Roadmap) ======== -->
-            <section id="roadmap" class="bg-[#1e1e3f] p-8 rounded-2xl shadow-lg border-2 border-cyan-400 transform hover:scale-105 transition-transform duration-300">
+            <section id="roadmap" class="bg-[#1e1e3f] p-6 md:p-8 rounded-2xl shadow-lg border-2 border-cyan-400 transform hover:scale-105 transition-transform duration-300">
                 <h2 class="font-fredoka text-3xl md:text-4xl text-center mb-10 text-cyan-300">Roadmap: The Training Plan</h2>
-                <div class="relative max-w-2xl mx-auto">
-                    <!-- Вертикальная линия -->
+                <!-- Mobile Roadmap -->
+                <div class="md:hidden space-y-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-cyan-500 w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white">1</div>
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Phase 1: The Warm-up</h3>
+                            <p class="text-sm text-gray-300">Website & Socials Launch, Litepaper Release.</p>
+                        </div>
+                    </div>
+                     <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white">2</div>
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Phase 2: Strength Building</h3>
+                            <p class="text-sm text-gray-300">Community Growth, Meme Contests, Token Smart Contract Deployment.</p>
+                        </div>
+                    </div>
+                     <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-cyan-500 w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white">3</div>
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Phase 3: Max Reps</h3>
+                            <p class="text-sm text-gray-300">Public Token Sale, Listing on Uniswap, First Marketing Push.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-purple-500 w-10 h-10 rounded-full flex items-center justify-center font-black text-lg text-white">4</div>
+                        <div>
+                            <h3 class="font-bold text-white text-lg">Phase 4: To the Moon!</h3>
+                            <p class="text-sm text-gray-300">Listing on CoinGecko & CoinMarketCap, Influencer Collaborations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Roadmap -->
+                <div class="hidden md:block relative max-w-2xl mx-auto">
                     <div class="absolute left-1/2 top-0 h-full w-1 bg-gray-700/50 transform -translate-x-1/2"></div>
-                    
-                    <!-- Этап 1 -->
                     <div class="mb-8 flex justify-between items-center w-full right-timeline">
                         <div class="order-1 w-5/12"></div>
                         <div class="z-10 flex items-center order-1 bg-cyan-500 shadow-xl w-12 h-12 rounded-full">
@@ -137,11 +167,9 @@
                             <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Website & Socials Launch, Litepaper Release.</p>
                         </div>
                     </div>
-
-                    <!-- Этап 2 -->
                     <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
                         <div class="order-1 w-5/12"></div>
-                        <div class="z-10 flex items-center order-1 bg-cyan-500 shadow-xl w-12 h-12 rounded-full">
+                        <div class="z-10 flex items-center order-1 bg-purple-500 shadow-xl w-12 h-12 rounded-full">
                             <h1 class="mx-auto text-white font-black text-lg">2</h1>
                         </div>
                         <div class="order-1 bg-purple-800 rounded-lg shadow-xl w-5/12 px-6 py-4">
@@ -149,8 +177,6 @@
                             <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Community Growth, Meme Contests, Token Smart Contract Deployment.</p>
                         </div>
                     </div>
-
-                    <!-- Этап 3 -->
                      <div class="mb-8 flex justify-between items-center w-full right-timeline">
                         <div class="order-1 w-5/12"></div>
                         <div class="z-10 flex items-center order-1 bg-cyan-500 shadow-xl w-12 h-12 rounded-full">
@@ -161,11 +187,9 @@
                             <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Public Token Sale, Listing on Uniswap, First Marketing Push.</p>
                         </div>
                     </div>
-
-                    <!-- Этап 4 -->
                     <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
                         <div class="order-1 w-5/12"></div>
-                        <div class="z-10 flex items-center order-1 bg-cyan-500 shadow-xl w-12 h-12 rounded-full">
+                        <div class="z-10 flex items-center order-1 bg-purple-500 shadow-xl w-12 h-12 rounded-full">
                             <h1 class="mx-auto text-white font-black text-lg">4</h1>
                         </div>
                         <div class="order-1 bg-purple-800 rounded-lg shadow-xl w-5/12 px-6 py-4">
@@ -177,38 +201,39 @@
             </section>
 
             <!-- ======== Блок Предзаказа (Call to Action) ======== -->
-            <section id="preorder" class="text-center bg-gradient-to-r from-green-400 to-yellow-500 p-10 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <section id="preorder" class="text-center bg-gradient-to-r from-green-400 to-yellow-500 p-8 md:p-10 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
                 <h2 class="font-fredoka text-3xl md:text-5xl text-gray-900 mb-4">Pre-order DNP tokens now!</h2>
-                <p class="text-xl text-gray-800 font-semibold mb-6">Join the movement, join the bounce!</p>
-                <button class="bg-gray-900 text-white font-fredoka text-2xl px-12 py-4 rounded-full hover:bg-black transform hover:rotate-[-5deg] transition-all duration-300 glow-effect">
+                <p class="text-lg md:text-xl text-gray-800 font-semibold mb-6">Join the movement, join the bounce!</p>
+                <button class="bg-gray-900 text-white font-fredoka text-xl md:text-2xl px-10 py-3 md:px-12 md:py-4 rounded-full hover:bg-black transform hover:rotate-[-5deg] transition-all duration-300 glow-effect">
                     GET $DNP
                 </button>
             </section>
         </main>
 
         <!-- ======== Футер и Контакты ======== -->
-        <footer class="text-center mt-16 py-8">
-            <h3 class="font-fredoka text-2xl mb-4 text-gray-300">Find us here:</h3>
+        <footer class="text-center mt-12 md:mt-16 py-8">
+            <h3 class="font-fredoka text-xl md:text-2xl mb-4 text-gray-300">Find us here:</h3>
             <div class="flex justify-center space-x-6">
                 <!-- Telegram -->
                 <a href="https://t.me/DropNpushCoin" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.51 .71l-4.84-3.56l-2.31 2.24c-.25.24-.45.44-.88.44l.28-4.23z"/></svg>
+                    <svg class="w-8 h-8 md:w-10 md:h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.51 .71l-4.84-3.56l-2.31 2.24c-.25.24-.45.44-.88.44l.28-4.23z"/></svg>
                 </a>
                 <!-- Email -->
                 <a href="mailto:dnp.official.contact@proton.me" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+                    <svg class="w-8 h-8 md:w-10 md:h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
                 </a>
             </div>
-            <p class="text-gray-500 mt-8">&copy; 2025 DropAndPush Coin. All rights reserved. For entertainment purposes only.</p>
+            <p class="text-xs md:text-sm text-gray-500 mt-8">&copy; 2025 DropAndPush Coin. All rights reserved. For entertainment purposes only.</p>
         </footer>
 
     </div>
 
     <!-- Модальные окна -->
     <!-- Sign Up Modal -->
-    <div id="signup-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500">
-            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Create Account</h2>
+    <div id="signup-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-[#2a2a4e] p-6 md:p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500 relative">
+             <button class="close-modal-btn absolute top-2 right-4 text-gray-400 hover:text-white text-3xl">&times;</button>
+            <h2 class="font-fredoka text-2xl md:text-3xl text-center mb-4 text-white">Create Account</h2>
             <form id="signup-form">
                 <div class="mb-4">
                     <label for="signup-email" class="block text-gray-300 mb-2">Email</label>
@@ -221,14 +246,14 @@
                 <button type="submit" class="w-full bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-3 rounded-lg transition glow-effect">Sign Up</button>
             </form>
             <div id="signup-error" class="text-red-500 mt-4 text-center"></div>
-            <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
         </div>
     </div>
 
     <!-- Login Modal -->
-    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500">
-            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Login</h2>
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-[#2a2a4e] p-6 md:p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500 relative">
+             <button class="close-modal-btn absolute top-2 right-4 text-gray-400 hover:text-white text-3xl">&times;</button>
+            <h2 class="font-fredoka text-2xl md:text-3xl text-center mb-4 text-white">Login</h2>
             <form id="login-form">
                 <div class="mb-4">
                     <label for="login-email" class="block text-gray-300 mb-2">Email</label>
@@ -241,18 +266,18 @@
                 <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition">Login</button>
             </form>
             <div id="login-error" class="text-red-500 mt-4 text-center"></div>
-             <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
         </div>
     </div>
     
     <!-- Profile Modal -->
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-green-400">
-            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Your Profile</h2>
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-[#2a2a4e] p-6 md:p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-green-400 relative">
+             <button class="close-modal-btn absolute top-2 right-4 text-gray-400 hover:text-white text-3xl">&times;</button>
+            <h2 class="font-fredoka text-2xl md:text-3xl text-center mb-4 text-white">Your Profile</h2>
             <form id="profile-form">
                  <div class="mb-4">
                     <label for="profile-email-display" class="block text-gray-400 mb-2">Email</label>
-                    <p id="profile-email-display" class="text-lg text-gray-200"></p>
+                    <p id="profile-email-display" class="text-lg text-gray-200 break-words"></p>
                 </div>
                 <div class="mb-6">
                     <label for="profile-wallet" class="block text-gray-300 mb-2">Your Crypto Wallet Address (ETH)</label>
@@ -261,7 +286,6 @@
                 <button type="submit" class="w-full bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-3 rounded-lg transition glow-effect">Save Wallet</button>
             </form>
              <div id="profile-success" class="text-green-400 mt-4 text-center"></div>
-             <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
         </div>
     </div>
 
@@ -286,8 +310,7 @@
             getDoc 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        
-        // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+        // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
         // Replace the entire object below with the one you copied from the Firebase console.
         const firebaseConfig = {
             apiKey: "AIzaSyAWgflsjln12yVOQZInvFql97bFHs8aO7c",
@@ -337,26 +360,23 @@
         profileBtn.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (user) {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                 const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
                 const docSnap = await getDoc(userDocRef);
+                document.getElementById('profile-email-display').textContent = user.email;
                 if (docSnap.exists()) {
-                    document.getElementById('profile-email-display').textContent = user.email;
                     document.getElementById('profile-wallet').value = docSnap.data().wallet || '';
-                } else {
-                    document.getElementById('profile-email-display').textContent = user.email;
-                     document.getElementById('profile-wallet').value = '';
                 }
                  profileSuccess.textContent = '';
                 showModal(profileModal);
             }
         });
         
-        [signupModal, loginModal, profileModal].forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal || e.target.classList.contains('close-modal-btn')) {
-                    hideModal(modal);
+        document.querySelectorAll('.modal-backdrop, .close-modal-btn').forEach(el => {
+            el.addEventListener('click', (e) => {
+                 if (e.target === el || e.target.classList.contains('close-modal-btn')) {
+                    el.closest('.modal-backdrop').classList.add('hidden');
                 }
-            });
+            })
         });
 
         // --- Auth State Logic ---
@@ -461,5 +481,4 @@
 
 </body>
 </html>
-
 
