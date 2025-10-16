@@ -273,8 +273,6 @@
             appId: "1:414577803061:web:1e44ab43730ebb0702967c"
         };
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -300,7 +298,7 @@
             const user = auth.currentUser;
             if (!user || !user.isAnonymous) return;
 
-            const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+            const userDocRef = doc(db, "users", user.uid);
             const docSnap = await getDoc(userDocRef);
             const walletAddress = docSnap.exists() ? docSnap.data().wallet : 'Not connected';
             
@@ -335,7 +333,7 @@
                 const userCredential = await signInAnonymously(auth);
                 const user = userCredential.user;
 
-                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                const userDocRef = doc(db, "users", user.uid);
                 await setDoc(userDocRef, {
                     wallet: walletAddress,
                     score: 0,
@@ -351,7 +349,7 @@
         // --- Auth State Logic ---
         onAuthStateChanged(auth, async (user) => {
             if (user && user.isAnonymous) {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
                 
                 if (docSnap.exists() && docSnap.data().wallet) {
