@@ -26,9 +26,34 @@
         .glow-effect {
             box-shadow: 0 0 5px #a8ff78, 0 0 15px #a8ff78, 0 0 25px #a8ff78, 0 0 35px #a8ff78;
         }
+        /* Стили для модальных окон */
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.7);
+        }
     </style>
 </head>
 <body class="text-white">
+
+    <!-- Навигационная панель -->
+    <nav class="bg-[#1e1e3f]/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#" class="font-fredoka text-2xl text-white">Drop<span class="text-[#a8ff78]">And</span>Push</a>
+                </div>
+                <div id="auth-links" class="flex items-center space-x-4">
+                    <button id="login-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition">Login</button>
+                    <button id="signup-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-2 px-4 rounded-lg transition glow-effect">Sign Up</button>
+                </div>
+                <div id="user-profile" class="hidden items-center space-x-4">
+                     <span id="user-email" class="text-gray-300"></span>
+                    <button id="profile-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">Profile</button>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
 
     <!-- Основной контейнер страницы -->
     <div class="container mx-auto p-4 md:p-8">
@@ -46,6 +71,16 @@
         </header>
 
         <main class="space-y-12">
+            <!-- ======== Блок с игрой (виден только авторизованным) ======== -->
+            <section id="game-section" class="hidden text-center bg-purple-900/50 p-10 rounded-2xl shadow-lg border-2 border-purple-500">
+                <h2 class="font-fredoka text-3xl md:text-5xl text-white mb-4">The DNP Gym is Open!</h2>
+                <p class="text-xl text-gray-300 font-semibold mb-6">Start your training session!</p>
+                <!-- Placeholder for the game -->
+                <div class="bg-gray-900/50 aspect-video max-w-2xl mx-auto rounded-lg flex items-center justify-center">
+                    <p class="text-gray-400 font-fredoka text-2xl">MINI-GAME COMING SOON...</p>
+                </div>
+            </section>
+        
             <!-- ======== Блок Описания ======== -->
             <section id="about" class="bg-[#1e1e3f] p-8 rounded-2xl shadow-lg border-2 border-purple-500 transform hover:scale-105 transition-transform duration-300">
                 <h2 class="font-fredoka text-3xl md:text-4xl text-center mb-4 text-[#a8ff78]">Meme coin for crypto warriors!</h2>
@@ -156,15 +191,11 @@
             <h3 class="font-fredoka text-2xl mb-4 text-gray-300">Find us here:</h3>
             <div class="flex justify-center space-x-6">
                 <!-- Telegram -->
-                <a href="#" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.84c-.18.82-1.04 4.64-1.46 6.49-.18.82-.55 1.1-.92 1.1-.37 0-.74-.28-1.1-.55-1.1-.82-1.74-1.37-2.82-2.2-.82-.64-1.46-1.1-1.1 0 .37 1.1.74 2.2 1.1 3.3.46 1.28.18 1.83-.92 1.83-.82 0-1.28-.55-1.83-1.1-1.37-1.37-2.47-4.12-2.84-6.06-.09-.55.28-.82.82-.82h.55c.64 0 .91.18 1.1.55.28.64 1.1 3.3 1.1 3.3s.46-1.1.82-1.83c.82-1.65 1.46-3.02 1.46-3.02s.28-.46.82-.46h.55c.55 0 .82.18.64.93z"/></svg>
-                </a>
-                <!-- Twitter -->
-                <a href="#" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98-3.54-.18-6.69-1.86-8.79-4.46-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.58-.7-.02-1.36-.22-1.93-.53v.05c0 2.08 1.48 3.82 3.44 4.21-.36.1-.74.15-1.13.15-.28 0-.55-.03-.81-.08.55 1.7 2.14 2.94 4.03 2.97-1.47 1.15-3.32 1.83-5.33 1.83-.35 0-.69-.02-1.03-.06 1.9 1.22 4.16 1.93 6.56 1.93 7.88 0 12.2-6.52 12.2-12.2 0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+                <a href="https://t.me/DropNpushCoin" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
+                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.51 .71l-4.84-3.56l-2.31 2.24c-.25.24-.45.44-.88.44l.28-4.23z"/></svg>
                 </a>
                 <!-- Email -->
-                <a href="#" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
+                <a href="mailto:dnp.official.contact@proton.me" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
                     <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
                 </a>
             </div>
@@ -173,6 +204,262 @@
 
     </div>
 
+    <!-- Модальные окна -->
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500">
+            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Create Account</h2>
+            <form id="signup-form">
+                <div class="mb-4">
+                    <label for="signup-email" class="block text-gray-300 mb-2">Email</label>
+                    <input type="email" id="signup-email" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="signup-password" class="block text-gray-300 mb-2">Password</label>
+                    <input type="password" id="signup-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <button type="submit" class="w-full bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-3 rounded-lg transition glow-effect">Sign Up</button>
+            </form>
+            <div id="signup-error" class="text-red-500 mt-4 text-center"></div>
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-purple-500">
+            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Login</h2>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-email" class="block text-gray-300 mb-2">Email</label>
+                    <input type="email" id="login-email" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="login-password" class="block text-gray-300 mb-2">Password</label>
+                    <input type="password" id="login-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition">Login</button>
+            </form>
+            <div id="login-error" class="text-red-500 mt-4 text-center"></div>
+             <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+        <div class="bg-[#2a2a4e] p-8 rounded-2xl shadow-lg w-full max-w-md border-2 border-green-400">
+            <h2 class="font-fredoka text-3xl text-center mb-4 text-white">Your Profile</h2>
+            <form id="profile-form">
+                 <div class="mb-4">
+                    <label for="profile-email-display" class="block text-gray-400 mb-2">Email</label>
+                    <p id="profile-email-display" class="text-lg text-gray-200"></p>
+                </div>
+                <div class="mb-6">
+                    <label for="profile-wallet" class="block text-gray-300 mb-2">Your Crypto Wallet Address (ETH)</label>
+                    <input type="text" id="profile-wallet" placeholder="0x..." class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-green-500">
+                </div>
+                <button type="submit" class="w-full bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-3 rounded-lg transition glow-effect">Save Wallet</button>
+            </form>
+             <div id="profile-success" class="text-green-400 mt-4 text-center"></div>
+             <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+        </div>
+    </div>
+
+
+    <!-- Firebase and App Logic -->
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signInAnonymously
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        
+        // PASTE YOUR FIREBASE CONFIG OBJECT HERE
+        // Replace the entire object below with the one you copied from the Firebase console.
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWgflsjln12yVOQZInvFql97bFHs8aO7c",
+            authDomain: "dropandpush-coin.firebaseapp.com",
+            projectId: "dropandpush-coin",
+            storageBucket: "dropandpush-coin.firebasestorage.app",
+            messagingSenderId: "414577803061",
+            appId: "1:414577803061:web:1e44ab43730ebb0702967c"
+        };
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const profileBtn = document.getElementById('profile-btn');
+        
+        const authLinks = document.getElementById('auth-links');
+        const userProfile = document.getElementById('user-profile');
+        const userEmailDisplay = document.getElementById('user-email');
+        const gameSection = document.getElementById('game-section');
+
+        const signupModal = document.getElementById('signup-modal');
+        const loginModal = document.getElementById('login-modal');
+        const profileModal = document.getElementById('profile-modal');
+        
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const profileForm = document.getElementById('profile-form');
+
+        const signupError = document.getElementById('signup-error');
+        const loginError = document.getElementById('login-error');
+        const profileSuccess = document.getElementById('profile-success');
+
+        // --- Modal Logic ---
+        function showModal(modal) { modal.classList.remove('hidden'); }
+        function hideModal(modal) { modal.classList.add('hidden'); }
+
+        loginBtn.addEventListener('click', () => showModal(loginModal));
+        signupBtn.addEventListener('click', () => showModal(signupModal));
+        profileBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (user) {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    document.getElementById('profile-email-display').textContent = user.email;
+                    document.getElementById('profile-wallet').value = docSnap.data().wallet || '';
+                } else {
+                    document.getElementById('profile-email-display').textContent = user.email;
+                     document.getElementById('profile-wallet').value = '';
+                }
+                 profileSuccess.textContent = '';
+                showModal(profileModal);
+            }
+        });
+        
+        [signupModal, loginModal, profileModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal || e.target.classList.contains('close-modal-btn')) {
+                    hideModal(modal);
+                }
+            });
+        });
+
+        // --- Auth State Logic ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // User is signed in
+                authLinks.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                userProfile.classList.add('flex');
+                userEmailDisplay.textContent = user.email;
+                gameSection.classList.remove('hidden');
+                hideModal(loginModal);
+                hideModal(signupModal);
+            } else {
+                // User is signed out
+                authLinks.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+                userProfile.classList.remove('flex');
+                gameSection.classList.add('hidden');
+            }
+        });
+
+        // --- Form Submissions ---
+        // Sign Up
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            signupError.textContent = '';
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Create user profile in Firestore
+                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                await setDoc(userDocRef, {
+                    email: user.email,
+                    wallet: '',
+                    score: 0,
+                    createdAt: new Date()
+                });
+
+            } catch (error) {
+                signupError.textContent = error.message;
+            }
+        });
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.textContent = '';
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = error.message;
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+        });
+        
+        // Profile Update
+        profileForm.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            profileSuccess.textContent = '';
+            const user = auth.currentUser;
+            const walletAddress = document.getElementById('profile-wallet').value;
+            
+            if(user) {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                try {
+                    await setDoc(userDocRef, { wallet: walletAddress }, { merge: true });
+                    profileSuccess.textContent = 'Wallet address saved successfully!';
+                    setTimeout(() => hideModal(profileModal), 1500);
+                } catch(error) {
+                    profileSuccess.textContent = 'Error saving wallet.';
+                }
+            }
+        });
+
+        // Initial auth check with custom token if available
+        (async () => {
+             try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    // Optional: Sign in as a guest to interact with public data if needed
+                    // await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Anonymous sign-in failed:", error);
+            }
+        })();
+
+    </script>
+
 </body>
 </html>
+
 
