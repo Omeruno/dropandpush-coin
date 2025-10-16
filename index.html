@@ -352,6 +352,7 @@
                 const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
                 
+                // Only show the user as fully logged in if their wallet document exists
                 if (docSnap.exists() && docSnap.data().wallet) {
                     const walletAddress = docSnap.data().wallet;
                     userDisplay.textContent = formatAddress(walletAddress);
@@ -360,10 +361,10 @@
                     userProfile.classList.remove('hidden');
                     userProfile.classList.add('flex');
                     gameSection.classList.remove('hidden');
-                } else {
-                    // This can happen if anonymous user exists but wallet connection was interrupted
-                    await signOut(auth);
                 }
+                // If the doc doesn't exist, we do nothing. The user is anonymously signed in,
+                // but the UI remains in the "logged out" state until the connection process completes
+                // and creates the document, which will re-trigger this listener.
             } else {
                 // User is signed out
                 authLinks.classList.remove('hidden');
