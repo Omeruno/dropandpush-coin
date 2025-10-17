@@ -30,25 +30,32 @@
         .modal-backdrop {
             background-color: rgba(0,0,0,0.7);
         }
-        /* Стили для игры */
-        #game-container {
+        /* Стили для полноэкранной игры */
+        #game-overlay {
             background-image: url('images/fon.png');
             background-size: cover;
             background-position: center;
         }
-        #candle-char {
+        #candle-char-container {
             cursor: pointer;
-            transition: transform 0.1s ease-out;
+            user-select: none; /* Отключить выделение изображения при быстрых кликах */
+            -webkit-user-drag: none; /* Отключить перетаскивание */
         }
-        #candle-char:active {
+        #candle-char-container:active #candle-char {
             transform: scale(0.95);
+        }
+        #candle-char {
+             transition: transform 0.1s ease-out;
         }
         .coin-animation {
             animation: coin-fly 0.7s ease-out forwards;
         }
         @keyframes coin-fly {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(150px, -150px) scale(0); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(250px, -250px) scale(0); opacity: 0; }
+        }
+        #power-bar-fill {
+            transition: height 0.1s linear;
         }
     </style>
 </head>
@@ -96,23 +103,10 @@
             <!-- ======== Блок с игрой (виден только авторизованным) ======== -->
             <section id="game-section" class="hidden text-center bg-purple-900/50 p-6 md:p-10 rounded-2xl shadow-lg border-2 border-purple-500">
                 <h2 class="font-fredoka text-3xl md:text-5xl text-white mb-2">The DNP Gym is Open!</h2>
-                <p class="text-lg md:text-xl text-gray-300 font-semibold mb-6">Tap to Pump!</p>
-                
-                <div id="game-container" class="relative aspect-video max-w-2xl mx-auto rounded-lg overflow-hidden">
-                    <!-- Score Display -->
-                    <div class="absolute top-4 right-4 bg-black/50 p-2 rounded-lg flex items-center space-x-2">
-                        <img src="images/gold.png" alt="Coin" class="w-8 h-8">
-                        <span id="score" class="font-fredoka text-2xl text-yellow-300">0</span>
-                    </div>
-
-                    <!-- Character -->
-                    <div class="absolute inset-0 flex items-center justify-center">
-                         <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-3/4">
-                    </div>
-
-                     <!-- Floating Coin Animation Placeholder -->
-                    <div id="coin-animation-container" class="absolute inset-0 flex items-center justify-center pointer-events-none"></div>
-                </div>
+                <p class="text-lg md:text-xl text-gray-300 font-semibold mb-6">Your training starts now.</p>
+                <button id="start-game-btn" class="bg-green-500 hover:bg-green-600 text-white font-fredoka text-xl md:text-2xl px-10 py-3 rounded-full transition transform hover:scale-105 glow-effect">
+                    Start Training
+                </button>
             </section>
         
             <!-- ======== Блок Описания ======== -->
@@ -259,7 +253,6 @@
             </div>
             <p class="text-xs md:text-sm text-gray-500 mt-8">&copy; 2025 DropAndPush Coin. All rights reserved. For entertainment purposes only.</p>
         </footer>
-
     </div>
     
     <!-- Profile Modal -->
@@ -276,6 +269,31 @@
                     <label class="block text-gray-300 mb-2">Total Score</label>
                     <p id="profile-score" class="text-2xl font-fredoka text-yellow-300"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Overlay -->
+    <div id="game-overlay" class="hidden fixed inset-0 z-50 flex-col items-center justify-center p-4">
+        <div id="game-overlay-container" class="relative w-full h-full max-w-md mx-auto rounded-lg flex flex-col items-center justify-center">
+            <!-- Game UI -->
+            <div class="absolute top-4 left-4 z-10">
+                <button id="close-game-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Exit</button>
+            </div>
+            <div class="absolute top-4 right-4 z-10 bg-black/50 p-2 rounded-lg flex items-center space-x-2">
+                <img src="images/gold.png" alt="Coin" class="w-8 h-8">
+                <span id="game-score" class="font-fredoka text-2xl text-yellow-300">0</span>
+            </div>
+
+            <!-- Game Area -->
+            <div id="candle-char-container" class="flex-grow w-full flex items-center justify-center relative">
+                <!-- Power Bar -->
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 h-2/3 w-8 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
+                    <div id="power-bar-fill" class="w-full bg-gradient-to-t from-red-500 via-yellow-500 to-green-500" style="height: 0%;"></div>
+                </div>
+                
+                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-2/3 max-h-[500px]">
+                <div id="coin-animation-container" class="absolute top-1/2 left-1/2 pointer-events-none"></div>
             </div>
         </div>
     </div>
@@ -297,7 +315,8 @@
             setDoc, 
             getDoc,
             updateDoc,
-            increment
+            increment,
+            onSnapshot
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
@@ -328,16 +347,31 @@
         const profileModal = document.getElementById('profile-modal');
         
         // Game Elements
+        const startGameBtn = document.getElementById('start-game-btn');
+        const gameOverlay = document.getElementById('game-overlay');
+        const closeGameBtn = document.getElementById('close-game-btn');
+        const candleCharContainer = document.getElementById('candle-char-container');
         const candleChar = document.getElementById('candle-char');
-        const scoreDisplay = document.getElementById('score');
+        const gameScoreDisplay = document.getElementById('game-score');
         const coinAnimationContainer = document.getElementById('coin-animation-container');
+        const powerBarFill = document.getElementById('power-bar-fill');
 
         let currentUser = null;
         let userDocRef = null;
+        let scoreUnsubscribe = null; 
 
-        // --- Modal Logic ---
+        // --- Modal & Overlay Logic ---
         function showModal(modal) { modal.classList.remove('hidden'); }
         function hideModal(modal) { modal.classList.add('hidden'); }
+
+        startGameBtn.addEventListener('click', () => {
+            gameOverlay.classList.remove('hidden');
+            startGameLoop();
+        });
+        closeGameBtn.addEventListener('click', () => {
+            gameOverlay.classList.add('hidden');
+            stopGameLoop();
+        });
 
         profileBtn.addEventListener('click', async () => {
             if (!currentUser) return;
@@ -353,7 +387,7 @@
         
         document.querySelectorAll('.modal-backdrop, .close-modal-btn').forEach(el => {
             el.addEventListener('click', (e) => {
-                 if (e.target === el || e.target.classList.contains('close-modal-btn')) {
+                 if (e.target.classList.contains('close-modal-btn')) {
                     el.closest('.modal-backdrop').classList.add('hidden');
                 }
             })
@@ -370,12 +404,9 @@
                 alert('MetaMask is not installed. Please install it to use this feature.');
                 return;
             }
-
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const walletAddress = accounts[0];
                 await signInAnonymously(auth);
-                // onAuthStateChanged will handle the rest
             } catch (error) {
                  console.error("Wallet connection failed:", error);
                 if (error.code === 4001) {
@@ -387,49 +418,73 @@
         });
 
         // --- Game Logic ---
-        let clickCount = 0;
-        const candleStates = ['images/fire_red.png', 'images/fire_yellow.png', 'images/fire_green.png'];
+        let powerLevel = 0;
+        const MAX_POWER = 100;
+        const POWER_PER_TAP = 5;
+        const POWER_DECREASE_RATE = 0.5;
+        let gameLoopInterval = null;
         
-        candleChar.addEventListener('click', async () => {
+        const candleStates = ['images/fire_red.png', 'images/fire_yellow.png', 'images/fire_green.png'];
+
+        function updateGameUI() {
+            powerBarFill.style.height = `${powerLevel}%`;
+
+            if (powerLevel < 33) candleChar.src = candleStates[0];
+            else if (powerLevel < 66) candleChar.src = candleStates[1];
+            else candleChar.src = candleStates[2];
+        }
+
+        function startGameLoop() {
+            if (gameLoopInterval) return;
+            gameLoopInterval = setInterval(() => {
+                powerLevel = Math.max(0, powerLevel - POWER_DECREASE_RATE);
+                updateGameUI();
+            }, 50); // Decrease power every 50ms
+        }
+
+        function stopGameLoop() {
+            clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+            powerLevel = 0;
+            updateGameUI();
+        }
+        
+        candleCharContainer.addEventListener('click', async () => {
             if (!currentUser) return;
 
-            clickCount++;
-            if (clickCount < candleStates.length) {
-                candleChar.src = candleStates[clickCount];
-            }
-            
-            if (clickCount >= candleStates.length - 1) { // When it's green
-                 // Update score in Firestore
-                await updateDoc(userDocRef, {
-                    score: increment(1)
-                });
+            powerLevel = Math.min(MAX_POWER, powerLevel + POWER_PER_TAP);
+
+            if (powerLevel >= MAX_POWER) {
+                powerLevel = 0; // Reset bar
+
+                try {
+                    await updateDoc(userDocRef, { score: increment(1) });
                 
-                // Show coin animation
-                const coinImg = document.createElement('img');
-                coinImg.src = 'images/gold.png';
-                coinImg.className = 'w-12 h-12 absolute coin-animation';
-                coinAnimationContainer.appendChild(coinImg);
-                setTimeout(() => coinImg.remove(), 700);
-                
-                // Reset for next pump
-                setTimeout(() => {
-                    clickCount = 0;
-                    candleChar.src = candleStates[0];
-                }, 200);
+                    const coinImg = document.createElement('img');
+                    coinImg.src = 'images/gold.png';
+                    coinImg.className = 'w-12 h-12 absolute coin-animation';
+                    coinAnimationContainer.appendChild(coinImg);
+                    setTimeout(() => coinImg.remove(), 700);
+                } catch (error) {
+                    console.error("Error updating score:", error);
+                }
             }
+            updateGameUI();
         });
 
 
         // --- Auth State Logic ---
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
+             if (scoreUnsubscribe) {
+                scoreUnsubscribe(); // Detach old listener
+            }
+
             if (user && user.isAnonymous) {
                 userDocRef = doc(db, "users", user.uid);
                 
-                // Check if the user document is already set up
                 const docSnap = await getDoc(userDocRef);
                 
-                // If it's a new anonymous user (from wallet connect), set up their profile
                 if (!docSnap.exists()) {
                     try {
                         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -438,27 +493,31 @@
                                 wallet: accounts[0],
                                 score: 0,
                                 createdAt: new Date()
-                            }, { merge: true });
+                            });
+                        } else {
+                             signOut(auth);
+                             return;
                         }
                     } catch(e) {
                         console.error("Could not get accounts for new user setup", e);
-                        signOut(auth); // Log out if setup fails
+                        signOut(auth);
                         return;
                     }
                 }
                 
-                // Refresh data for UI
-                const finalDocSnap = await getDoc(userDocRef);
-                if(finalDocSnap.exists()) {
-                    const data = finalDocSnap.data();
-                    userDisplay.textContent = formatAddress(data.wallet);
-                    scoreDisplay.textContent = data.score || 0;
+                // Real-time listener for score
+                scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
+                    if (doc.exists()) {
+                        const data = doc.data();
+                        userDisplay.textContent = formatAddress(data.wallet);
+                        gameScoreDisplay.textContent = data.score || 0;
 
-                    authLinks.classList.add('hidden');
-                    userProfile.classList.remove('hidden');
-                    userProfile.classList.add('flex');
-                    gameSection.classList.remove('hidden');
-                }
+                        authLinks.classList.add('hidden');
+                        userProfile.classList.remove('hidden');
+                        userProfile.classList.add('flex');
+                        gameSection.classList.remove('hidden');
+                    }
+                });
 
             } else {
                 // User is signed out
@@ -466,6 +525,9 @@
                 userProfile.classList.add('hidden');
                 userProfile.classList.remove('flex');
                 gameSection.classList.add('hidden');
+                currentUser = null;
+                userDocRef = null;
+                stopGameLoop();
             }
         });
 
