@@ -31,8 +31,8 @@
         /* Стили для полноэкранной игры */
         #game-viewport {
             background-image: url('images/fon.png');
-            background-size: contain; /* Изменено на contain */
-            background-position: center bottom; /* Изменено для позиционирования по полу */
+            background-size: cover; /* Изменено на cover для полного заполнения */
+            background-position: center bottom;
             background-repeat: no-repeat;
         }
         #candle-char-container {
@@ -268,12 +268,12 @@
                 <span id="game-score" class="font-fredoka text-2xl text-yellow-300">0</span>
             </div>
 
-            <!-- Game Area --><div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-[20%] relative">
-                 <!-- Power Bar --><div class="absolute left-[10%] bottom-[30%] h-[35%] w-7 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
+            <!-- Game Area --><div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-[15%] relative">
+                 <!-- Power Bar --><div class="absolute left-[10%] bottom-[25%] h-[26%] w-6 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
                     <div id="power-bar-fill" class="w-full bg-gradient-to-t from-red-500 via-yellow-500 to-green-500" style="height: 0%;"></div>
                 </div>
                 
-                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[35%]">
+                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[23%]">
                 <div id="coin-animation-container" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
             </div>
         </div>
