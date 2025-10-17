@@ -31,7 +31,7 @@
             background-color: rgba(0,0,0,0.7);
         }
         /* Стили для полноэкранной игры */
-        #game-overlay {
+        #game-viewport {
             background-image: url('images/fon.png');
             background-size: cover;
             background-position: center;
@@ -274,8 +274,8 @@
     </div>
 
     <!-- Game Overlay -->
-    <div id="game-overlay" class="hidden fixed inset-0 z-50 flex-col items-center justify-center p-4">
-        <div id="game-overlay-container" class="relative w-full h-full max-w-md mx-auto rounded-lg flex flex-col items-center justify-center">
+    <div id="game-overlay" class="hidden fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
+        <div id="game-viewport" class="relative w-full h-full max-h-[90vh] aspect-[9/16] mx-auto rounded-lg">
             <!-- Game UI -->
             <div class="absolute top-4 left-4 z-10">
                 <button id="close-game-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Exit</button>
@@ -286,15 +286,15 @@
             </div>
 
             <!-- Game Area -->
-            <div id="candle-char-container" class="flex-grow w-full flex items-center justify-center relative">
-                <!-- Power Bar -->
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 h-2/3 w-8 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
+            <div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-16">
+                 <!-- Power Bar -->
+                <div class="absolute left-4 bottom-16 h-1/2 w-8 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
                     <div id="power-bar-fill" class="w-full bg-gradient-to-t from-red-500 via-yellow-500 to-green-500" style="height: 0%;"></div>
                 </div>
                 
-                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-2/3 max-h-[500px]">
-                <div id="coin-animation-container" class="absolute top-1/2 left-1/2 pointer-events-none"></div>
+                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-1/2">
             </div>
+            <div id="coin-animation-container" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         </div>
     </div>
 
@@ -420,8 +420,8 @@
         // --- Game Logic ---
         let powerLevel = 0;
         const MAX_POWER = 100;
-        const POWER_PER_TAP = 5;
-        const POWER_DECREASE_RATE = 0.5;
+        const POWER_PER_TAP = 10;
+        const POWER_DECREASE_RATE = 1;
         let gameLoopInterval = null;
         
         const candleStates = ['images/fire_red.png', 'images/fire_yellow.png', 'images/fire_green.png'];
@@ -429,8 +429,8 @@
         function updateGameUI() {
             powerBarFill.style.height = `${powerLevel}%`;
 
-            if (powerLevel < 33) candleChar.src = candleStates[0];
-            else if (powerLevel < 66) candleChar.src = candleStates[1];
+            if (powerLevel < 40) candleChar.src = candleStates[0];
+            else if (powerLevel < 80) candleChar.src = candleStates[1];
             else candleChar.src = candleStates[2];
         }
 
