@@ -31,27 +31,40 @@
         /* Стили для полноэкранной игры */
         #game-viewport {
             background-image: url('images/fon.png');
-            background-size: cover; /* Изменено на cover для полного заполнения */
+            background-size: cover;
             background-position: center bottom;
             background-repeat: no-repeat;
         }
         #candle-char-container {
             cursor: pointer;
-            user-select: none; /* Отключить выделение изображения при быстрых кликах */
-            -webkit-user-drag: none; /* Отключить перетаскивание */
+            user-select: none;
+            -webkit-user-drag: none;
         }
         #candle-char-container:active #candle-char {
             transform: scale(0.95);
         }
         #candle-char {
              transition: transform 0.1s ease-out;
+             animation: idle-breath 3s ease-in-out infinite;
         }
-        .coin-animation {
-            animation: coin-fly 0.7s ease-out forwards;
+        .plus-one-animation {
+            animation: plus-one-fly 1s ease-out forwards;
         }
-        @keyframes coin-fly {
-            0% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-            100% { transform: translate(250px, -250px) scale(0); opacity: 0; }
+        .motivation-animation {
+            animation: fade-in-out 4s ease-in-out forwards;
+        }
+
+        @keyframes idle-breath {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        @keyframes plus-one-fly {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+        }
+        @keyframes fade-in-out {
+            0%, 100% { opacity: 0; transform: translateY(10px); }
+            10%, 90% { opacity: 1; transform: translateY(0); }
         }
         #power-bar-fill {
             transition: height 0.1s linear;
@@ -260,21 +273,21 @@
 
     <!-- Game Overlay --><div id="game-overlay" class="hidden fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
         <div id="game-viewport" class="relative w-full shadow-2xl" style="aspect-ratio: 9 / 16; max-height: 90vh; max-width: calc(90vh * 9 / 16);">
-            <!-- Game UI --><div class="absolute top-4 left-4 z-10">
+            <!-- Game UI --><div class="absolute top-5 left-5 z-10">
                 <button id="close-game-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Exit</button>
             </div>
-            <div class="absolute top-4 right-4 z-10 bg-black/50 p-2 rounded-lg flex items-center space-x-2">
+            <div class="absolute top-5 right-5 z-10 bg-black/50 p-2 rounded-lg flex items-center space-x-2">
                 <img src="images/gold.png" alt="Coin" class="w-8 h-8">
                 <span id="game-score" class="font-fredoka text-2xl text-yellow-300">0</span>
             </div>
 
-            <!-- Game Area --><div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-[15%] relative">
-                 <!-- Power Bar --><div class="absolute left-[10%] bottom-[25%] h-[26%] w-6 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
+            <!-- Game Area --><div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-[10%] relative">
+                 <!-- Power Bar --><div class="absolute left-[8%] bottom-[20%] h-[30%] w-8 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
                     <div id="power-bar-fill" class="w-full bg-gradient-to-t from-red-500 via-yellow-500 to-green-500" style="height: 0%;"></div>
                 </div>
                 
-                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[23%]">
-                <div id="coin-animation-container" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[28%]">
+                <div id="floating-text-container" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-full h-full"></div>
             </div>
         </div>
     </div>
@@ -333,7 +346,7 @@
         const candleCharContainer = document.getElementById('candle-char-container');
         const candleChar = document.getElementById('candle-char');
         const gameScoreDisplay = document.getElementById('game-score');
-        const coinAnimationContainer = document.getElementById('coin-animation-container');
+        const floatingTextContainer = document.getElementById('floating-text-container');
         const powerBarFill = document.getElementById('power-bar-fill');
 
         let currentUser = null;
@@ -384,7 +397,7 @@
         connectWalletBtn.addEventListener('click', async () => {
             if (isMobile() && !window.ethereum) {
                 // On mobile, if MetaMask provider is not injected, try to open the app via deeplink.
-                const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + window.location.hostname + window.location.pathname;
+                const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + window.location.host; // Use host to include port if any
                 window.location.href = metamaskAppDeepLink;
                 return;
             }
@@ -412,8 +425,24 @@
         const POWER_PER_TAP = 10;
         const POWER_DECREASE_RATE = 1;
         let gameLoopInterval = null;
+        let idleTimer = null;
         
         const candleStates = ['images/fire_red.png', 'images/fire_yellow.png', 'images/fire_green.png'];
+        const motivationPhrases = ["Come on, bro!", "One more rep?", "Don't be weak!", "Push harder!"];
+
+        function showMotivationPopup() {
+            const phrase = motivationPhrases[Math.floor(Math.random() * motivationPhrases.length)];
+            const popup = document.createElement('div');
+            popup.textContent = phrase;
+            popup.className = 'font-fredoka text-2xl text-yellow-300 absolute top-[40%] left-1/2 -translate-x-1/2 motivation-animation';
+            floatingTextContainer.appendChild(popup);
+            setTimeout(() => popup.remove(), 4000);
+        }
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(showMotivationPopup, 10000); // 10 seconds
+        }
 
         function updateGameUI() {
             powerBarFill.style.height = `${powerLevel}%`;
@@ -425,35 +454,40 @@
 
         function startGameLoop() {
             if (gameLoopInterval) return;
+            resetIdleTimer();
             gameLoopInterval = setInterval(() => {
                 powerLevel = Math.max(0, powerLevel - POWER_DECREASE_RATE);
                 updateGameUI();
-            }, 50); // Decrease power every 50ms
+            }, 50);
         }
 
         function stopGameLoop() {
             clearInterval(gameLoopInterval);
+            clearTimeout(idleTimer);
             gameLoopInterval = null;
+            idleTimer = null;
             powerLevel = 0;
             updateGameUI();
         }
         
         candleCharContainer.addEventListener('click', async () => {
             if (!currentUser) return;
+            resetIdleTimer();
 
             powerLevel = Math.min(MAX_POWER, powerLevel + POWER_PER_TAP);
 
             if (powerLevel >= MAX_POWER) {
-                powerLevel = 0; // Reset bar
+                powerLevel = 0;
 
                 try {
                     await updateDoc(userDocRef, { score: increment(1) });
                 
-                    const coinImg = document.createElement('img');
-                    coinImg.src = 'images/gold.png';
-                    coinImg.className = 'w-12 h-12 absolute coin-animation';
-                    coinAnimationContainer.appendChild(coinImg);
-                    setTimeout(() => coinImg.remove(), 700);
+                    const plusOne = document.createElement('div');
+                    plusOne.textContent = "+1";
+                    plusOne.className = 'font-fredoka text-3xl text-yellow-300 absolute top-1/2 left-1/2 -translate-x-1/2 plus-one-animation';
+                    floatingTextContainer.appendChild(plusOne);
+                    setTimeout(() => plusOne.remove(), 1000);
+
                 } catch (error) {
                     console.error("Error updating score:", error);
                 }
