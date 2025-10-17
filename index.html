@@ -277,20 +277,26 @@
                 <button id="close-game-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Exit</button>
             </div>
             <div class="absolute top-5 right-5 z-10 bg-black/50 p-2 rounded-lg flex items-center space-x-2">
+                <button id="sound-toggle-btn" class="text-white">
+                    <!-- Sound On Icon --><svg id="sound-on-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zM13 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z"></path></svg>
+                    <!-- Sound Off Icon --><svg id="sound-off-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+                </button>
                 <img src="images/gold.png" alt="Coin" class="w-8 h-8">
                 <span id="game-score" class="font-fredoka text-2xl text-yellow-300">0</span>
             </div>
 
             <!-- Game Area --><div id="candle-char-container" class="w-full h-full flex items-end justify-center pb-[10%] relative">
-                 <!-- Power Bar --><div class="absolute left-[8%] bottom-[20%] h-[30%] w-8 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
+                 <!-- Power Bar --><div class="absolute left-[8%] bottom-[20%] h-[35%] w-10 bg-gray-900/50 rounded-full border-2 border-gray-500 flex flex-col-reverse overflow-hidden">
                     <div id="power-bar-fill" class="w-full bg-gradient-to-t from-red-500 via-yellow-500 to-green-500" style="height: 0%;"></div>
                 </div>
                 
-                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[28%]">
+                <img id="candle-char" src="images/fire_red.png" alt="Candle Character" class="h-[34%]">
                 <div id="floating-text-container" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-full h-full"></div>
             </div>
         </div>
     </div>
+    
+    <audio id="background-music" loop src="sound/sound.mp3"></audio>
 
 
     <!-- Firebase and App Logic --><script type="module">
@@ -348,10 +354,15 @@
         const gameScoreDisplay = document.getElementById('game-score');
         const floatingTextContainer = document.getElementById('floating-text-container');
         const powerBarFill = document.getElementById('power-bar-fill');
+        const soundToggleBtn = document.getElementById('sound-toggle-btn');
+        const soundOnIcon = document.getElementById('sound-on-icon');
+        const soundOffIcon = document.getElementById('sound-off-icon');
+        const backgroundMusic = document.getElementById('background-music');
 
         let currentUser = null;
         let userDocRef = null;
         let scoreUnsubscribe = null; 
+        let isSoundOn = false;
 
         // --- Modal & Overlay Logic ---
         function showModal(modal) { modal.classList.remove('hidden'); }
@@ -419,6 +430,22 @@
             }
         });
 
+        // --- Sound Logic ---
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            if (isSoundOn) {
+                backgroundMusic.play().catch(e => console.log("Audio play failed", e));
+                soundOnIcon.classList.remove('hidden');
+                soundOffIcon.classList.add('hidden');
+            } else {
+                backgroundMusic.pause();
+                soundOnIcon.classList.add('hidden');
+                soundOffIcon.classList.remove('hidden');
+            }
+        }
+        soundToggleBtn.addEventListener('click', toggleSound);
+
+
         // --- Game Logic ---
         let powerLevel = 0;
         const MAX_POWER = 100;
@@ -434,7 +461,7 @@
             const phrase = motivationPhrases[Math.floor(Math.random() * motivationPhrases.length)];
             const popup = document.createElement('div');
             popup.textContent = phrase;
-            popup.className = 'font-fredoka text-2xl text-yellow-300 absolute top-[40%] left-1/2 -translate-x-1/2 motivation-animation';
+            popup.className = 'font-fredoka text-2xl text-white absolute top-[40%] left-1/2 -translate-x-1/2 motivation-animation';
             floatingTextContainer.appendChild(popup);
             setTimeout(() => popup.remove(), 4000);
         }
@@ -454,6 +481,9 @@
 
         function startGameLoop() {
             if (gameLoopInterval) return;
+            if (isSoundOn) {
+                backgroundMusic.play().catch(e => console.log("Audio play failed", e));
+            }
             resetIdleTimer();
             gameLoopInterval = setInterval(() => {
                 powerLevel = Math.max(0, powerLevel - POWER_DECREASE_RATE);
@@ -468,6 +498,7 @@
             idleTimer = null;
             powerLevel = 0;
             updateGameUI();
+            backgroundMusic.pause();
         }
         
         candleCharContainer.addEventListener('click', async () => {
