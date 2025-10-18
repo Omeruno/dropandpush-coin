@@ -336,8 +336,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
-            signOut, 
-            onAuthStateChanged
+            signOut
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -362,7 +361,7 @@
         
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        const auth = getAuth(app); // We keep auth for custom token auth if needed in future
         const db = getFirestore(app);
 
         // UI Elements
@@ -451,9 +450,13 @@
             showModal(profileModal);
         });
         
-        claimBonusInProfileBtn.addEventListener('click', () => {
+        claimBonusInProfileBtn.addEventListener('click', async () => {
             hideModal(profileModal);
-            showModal(dailyBonusModal);
+            const canClaim = await canUserClaimBonus();
+            if(canClaim) {
+                const userDoc = await getDoc(userDocRef);
+                await checkForDailyBonus(userDoc);
+            }
         });
 
         copyRefLinkBtn.addEventListener('click', () => {
@@ -623,10 +626,14 @@
                     wallet: walletAddress,
                     score: 0,
                     createdAt: serverTimestamp(),
-                    lastLogin: serverTimestamp(),
-                    loginStreak: 1,
+                    lastLogin: null, // Set to null initially
+                    loginStreak: 0,
                     referredBy: referralId || null,
                 });
+                
+                // Now check for bonus as if they are an existing user
+                const newUserDoc = await getDoc(userDocRef);
+                await checkForDailyBonus(newUserDoc);
 
                 if (referralId && referralId !== walletAddress) {
                     const referrerDocRef = doc(db, "users", referralId);
@@ -636,10 +643,6 @@
                     }
                 }
                 localStorage.removeItem('referralId');
-                
-                updateStreakUI(1, true);
-                showModal(dailyBonusModal);
-
             } else {
                 await checkForDailyBonus(docSnap);
             }
@@ -667,6 +670,10 @@
             });
         }
 
+        function toUTCDateString(date) {
+            return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+        }
+
         async function canUserClaimBonus() {
              if (!userDocRef) return false;
             const userDoc = await getDoc(userDocRef);
@@ -674,13 +681,12 @@
             
             const userData = userDoc.data();
             const lastLogin = userData.lastLogin?.toDate();
-            if(!lastLogin) return true; // Should not happen for existing user
+            if(!lastLogin) return true;
 
-            const now = new Date();
-            const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
-            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const lastLoginDay = toUTCDateString(lastLogin);
+            const today = toUTCDateString(new Date());
 
-            return todayDate > lastLoginDate;
+            return today > lastLoginDay;
         }
 
         async function checkForDailyBonus(userDoc) {
@@ -690,18 +696,25 @@
                 const userData = userDoc.data();
                 const lastLogin = userData.lastLogin?.toDate();
                 let streak = userData.loginStreak || 0;
-                const now = new Date();
-                 const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
-                const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                
+                if (lastLogin) {
+                    const lastLoginDay = new Date(lastLogin);
+                    lastLoginDay.setUTCHours(0,0,0,0);
+                    const today = new Date();
+                    today.setUTCHours(0,0,0,0);
 
-                const diffTime = todayDate.getTime() - lastLoginDate.getTime();
-                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-            
-                if (diffDays === 1) { 
-                    streak = (streak >= 7) ? 1 : streak + 1;
-                } else if (diffDays > 1) { 
+                    const diffTime = today.getTime() - lastLoginDay.getTime();
+                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                
+                    if (diffDays === 1) { 
+                        streak = (streak >= 7) ? 1 : streak + 1;
+                    } else if (diffDays > 1) { 
+                        streak = 1;
+                    }
+                } else { // First login
                     streak = 1;
                 }
+
                 updateStreakUI(streak, true);
                 showModal(dailyBonusModal);
                 clearTimeout(bonusModalTimeout);
@@ -744,17 +757,21 @@
             
             const userDoc = await getDoc(userDocRef);
             let streak = userDoc.data().loginStreak || 0;
-
             const lastLogin = userDoc.data().lastLogin?.toDate();
-            const now = new Date();
-            const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
-            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const diffTime = todayDate.getTime() - lastLoginDate.getTime();
-            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-            if (diffDays === 1) {
-                streak = (streak >= 7) ? 1 : streak + 1;
-            } else if (diffDays > 1) {
+             if (lastLogin) {
+                const lastLoginDay = new Date(lastLogin);
+                lastLoginDay.setUTCHours(0,0,0,0);
+                const today = new Date();
+                today.setUTCHours(0,0,0,0);
+                const diffTime = today.getTime() - lastLoginDay.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                    streak = (streak >= 7) ? 1 : streak + 1;
+                } else if (diffDays > 1) {
+                    streak = 1;
+                }
+            } else {
                 streak = 1;
             }
 
@@ -766,6 +783,7 @@
                 loginStreak: streak
             });
             hideModal(dailyBonusModal);
+            clearTimeout(bonusModalTimeout);
         });
 
         // Check on page load if a wallet was previously connected
@@ -795,5 +813,4 @@
 
 </body>
 </html>
-"
 
