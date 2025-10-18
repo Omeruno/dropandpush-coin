@@ -284,6 +284,7 @@
                         <button id="copy-ref-link-btn" class="bg-green-500 hover:bg-green-600 px-3 rounded-r-lg text-white">Copy</button>
                     </div>
                 </div>
+                <button id="claim-bonus-in-profile-btn" class="hidden mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 rounded-lg">Claim Daily Bonus</button>
             </div>
         </div>
     </div>
@@ -314,7 +315,8 @@
     </div>
 
     <!-- Daily Bonus Modal --><div id="daily-bonus-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop p-4">
-        <div class="bg-gradient-to-br from-purple-800 to-indigo-900 p-6 rounded-2xl shadow-lg text-center text-white bonus-popup-animation w-full max-w-md border-2 border-yellow-400">
+        <div class="bg-gradient-to-br from-purple-800 to-indigo-900 p-6 rounded-2xl shadow-lg text-center text-white bonus-popup-animation w-full max-w-md border-2 border-yellow-400 relative">
+             <button class="close-modal-btn absolute top-2 right-4 text-white text-3xl">&times;</button>
             <h2 class="font-fredoka text-3xl text-yellow-300">Daily Login Streak</h2>
             <p class="mt-2 text-gray-300">Log in every day to get bigger rewards!</p>
             <div id="streak-grid" class="grid grid-cols-4 gap-2 mt-6">
@@ -376,6 +378,7 @@
         const profileModal = document.getElementById('profile-modal');
         const refLinkInput = document.getElementById('ref-link-input');
         const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
+        const claimBonusInProfileBtn = document.getElementById('claim-bonus-in-profile-btn');
         
         const dailyBonusModal = document.getElementById('daily-bonus-modal');
         const streakGrid = document.getElementById('streak-grid');
@@ -400,6 +403,7 @@
         let userDocRef = null;
         let scoreUnsubscribe = null; 
         let isSoundOn = false;
+        let bonusModalTimeout = null;
 
         const bonuses = [10, 20, 30, 40, 50, 60, 100]; // Day 1 to 7
 
@@ -436,8 +440,20 @@
                 document.getElementById('profile-wallet').textContent = data.wallet || 'N/A';
                 document.getElementById('profile-score').textContent = data.score || 0;
                 refLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.wallet.toLowerCase()}`;
+                
+                const canClaim = await canUserClaimBonus();
+                if (canClaim) {
+                    claimBonusInProfileBtn.classList.remove('hidden');
+                } else {
+                    claimBonusInProfileBtn.classList.add('hidden');
+                }
             }
             showModal(profileModal);
+        });
+        
+        claimBonusInProfileBtn.addEventListener('click', () => {
+            hideModal(profileModal);
+            showModal(dailyBonusModal);
         });
 
         copyRefLinkBtn.addEventListener('click', () => {
@@ -449,8 +465,9 @@
         
         document.querySelectorAll('.modal-backdrop, .close-modal-btn').forEach(el => {
             el.addEventListener('click', (e) => {
-                 if (e.target.classList.contains('close-modal-btn')) {
-                    el.closest('.modal-backdrop').classList.add('hidden');
+                 if (e.target.closest('.close-modal-btn') || e.target === el) {
+                    hideModal(el.closest('.modal-backdrop'));
+                    clearTimeout(bonusModalTimeout);
                 }
             })
         });
@@ -478,15 +495,7 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const walletAddress = accounts[0].toLowerCase();
                 localStorage.setItem('connectedWallet', walletAddress);
-                
-                // Sign out any anonymous user before signing in with a new identity
-                if (auth.currentUser && auth.currentUser.isAnonymous) {
-                    await signOut(auth);
-                }
-                
-                // Now handle login with the specific wallet address
                 await handleLogin(walletAddress);
-
             } catch (error) {
                  console.error("Wallet connection failed:", error);
                 if (error.code === 4001) {
@@ -628,12 +637,10 @@
                 }
                 localStorage.removeItem('referralId');
                 
-                // Show welcome bonus
                 updateStreakUI(1, true);
                 showModal(dailyBonusModal);
 
             } else {
-                // Existing user flow
                 await checkForDailyBonus(docSnap);
             }
 
@@ -641,10 +648,10 @@
         }
         
         function setupUserSession(walletAddress) {
-            currentUser = { uid: walletAddress }; // simplified user object
+            currentUser = { uid: walletAddress };
             userDocRef = doc(db, "users", walletAddress);
 
-             if (scoreUnsubscribe) scoreUnsubscribe();
+            if (scoreUnsubscribe) scoreUnsubscribe();
             
             scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
                 if (doc.exists()) {
@@ -660,32 +667,45 @@
             });
         }
 
-        async function checkForDailyBonus(userDoc) {
+        async function canUserClaimBonus() {
+             if (!userDocRef) return false;
+            const userDoc = await getDoc(userDocRef);
+            if (!userDoc.exists()) return false;
+            
             const userData = userDoc.data();
             const lastLogin = userData.lastLogin?.toDate();
-            let streak = userData.loginStreak || 0;
+            if(!lastLogin) return true; // Should not happen for existing user
+
             const now = new Date();
-            
-            if (!lastLogin) return;
-            
             const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
             const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            const diffTime = todayDate.getTime() - lastLoginDate.getTime();
-            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            return todayDate > lastLoginDate;
+        }
+
+        async function checkForDailyBonus(userDoc) {
+            const canClaim = await canUserClaimBonus();
             
-            let canClaim = false;
-            if (diffDays === 1) { // Continued streak
-                streak = (streak >= 7) ? 1 : streak + 1;
-                canClaim = true;
-            } else if (diffDays > 1) { // Streak broken
-                streak = 1;
-                canClaim = true;
-            } // if diffDays is 0, they already logged in today.
+            if (canClaim) {
+                const userData = userDoc.data();
+                const lastLogin = userData.lastLogin?.toDate();
+                let streak = userData.loginStreak || 0;
+                const now = new Date();
+                 const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
+                const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                const diffTime = todayDate.getTime() - lastLoginDate.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
             
-            updateStreakUI(streak, canClaim);
-            if(canClaim) {
+                if (diffDays === 1) { 
+                    streak = (streak >= 7) ? 1 : streak + 1;
+                } else if (diffDays > 1) { 
+                    streak = 1;
+                }
+                updateStreakUI(streak, true);
                 showModal(dailyBonusModal);
+                clearTimeout(bonusModalTimeout);
+                bonusModalTimeout = setTimeout(() => hideModal(dailyBonusModal), 30000);
             }
         }
         
@@ -715,7 +735,7 @@
                 streakGrid.appendChild(dayDiv);
             }
             claimBonusBtn.disabled = !canClaim;
-            claimBonusBtn.textContent = canClaim ? 'Claim Bonus' : 'Already Claimed';
+            claimBonusBtn.textContent = canClaim ? 'Claim Bonus' : 'Claimed Today';
         }
 
         claimBonusBtn.addEventListener('click', async () => {
@@ -723,7 +743,21 @@
             claimBonusBtn.disabled = true;
             
             const userDoc = await getDoc(userDocRef);
-            const streak = userDoc.data().loginStreak || 1;
+            let streak = userDoc.data().loginStreak || 0;
+
+            const lastLogin = userDoc.data().lastLogin?.toDate();
+            const now = new Date();
+            const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
+            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const diffTime = todayDate.getTime() - lastLoginDate.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                streak = (streak >= 7) ? 1 : streak + 1;
+            } else if (diffDays > 1) {
+                streak = 1;
+            }
+
             const bonusAmount = bonuses[streak - 1];
 
             await updateDoc(userDocRef, {
@@ -761,4 +795,5 @@
 
 </body>
 </html>
+"
 
