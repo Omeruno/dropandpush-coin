@@ -313,10 +313,16 @@
         </div>
     </div>
 
-    <!-- Daily Bonus Popup --><div id="daily-bonus-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop p-4">
-        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-8 rounded-2xl shadow-lg text-center text-gray-900 bonus-popup-animation w-full max-w-sm">
-            <h2 id="daily-bonus-title" class="font-fredoka text-3xl">Daily Bonus!</h2>
-            <p id="daily-bonus-text" class="text-xl mt-2">You earned <span class="font-bold">+10</span> points!</p>
+    <!-- Daily Bonus Modal --><div id="daily-bonus-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-gradient-to-br from-purple-800 to-indigo-900 p-6 rounded-2xl shadow-lg text-center text-white bonus-popup-animation w-full max-w-md border-2 border-yellow-400">
+            <h2 class="font-fredoka text-3xl text-yellow-300">Daily Login Streak</h2>
+            <p class="mt-2 text-gray-300">Log in every day to get bigger rewards!</p>
+            <div id="streak-grid" class="grid grid-cols-4 gap-2 mt-6">
+                <!-- Day items will be injected here -->
+            </div>
+            <button id="claim-bonus-btn" class="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition disabled:bg-gray-500 disabled:cursor-not-allowed">
+                Claim Bonus
+            </button>
         </div>
     </div>
     
@@ -329,8 +335,7 @@
         import { 
             getAuth, 
             signOut, 
-            onAuthStateChanged,
-            signInAnonymously
+            onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -371,9 +376,11 @@
         const profileModal = document.getElementById('profile-modal');
         const refLinkInput = document.getElementById('ref-link-input');
         const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
-        const dailyBonusPopup = document.getElementById('daily-bonus-popup');
-        const dailyBonusTitle = document.getElementById('daily-bonus-title');
-        const dailyBonusText = document.getElementById('daily-bonus-text');
+        
+        const dailyBonusModal = document.getElementById('daily-bonus-modal');
+        const streakGrid = document.getElementById('streak-grid');
+        const claimBonusBtn = document.getElementById('claim-bonus-btn');
+
         
         // Game Elements
         const startGameBtn = document.getElementById('start-game-btn');
@@ -394,13 +401,13 @@
         let scoreUnsubscribe = null; 
         let isSoundOn = false;
 
+        const bonuses = [10, 20, 30, 40, 50, 60, 100]; // Day 1 to 7
+
         // --- Referral Logic ---
         function handleReferral() {
             const urlParams = new URLSearchParams(window.location.search);
             const refId = urlParams.get('ref');
             if (refId) {
-                // Clear previous ref if any, to avoid using old ones
-                localStorage.removeItem('referralId');
                 localStorage.setItem('referralId', refId);
             }
         }
@@ -428,7 +435,7 @@
                 const data = docSnap.data();
                 document.getElementById('profile-wallet').textContent = data.wallet || 'N/A';
                 document.getElementById('profile-score').textContent = data.score || 0;
-                refLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${currentUser.uid}`;
+                refLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.wallet.toLowerCase()}`;
             }
             showModal(profileModal);
         });
@@ -469,7 +476,17 @@
             }
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                await signInAnonymously(auth);
+                const walletAddress = accounts[0].toLowerCase();
+                localStorage.setItem('connectedWallet', walletAddress);
+                
+                // Sign out any anonymous user before signing in with a new identity
+                if (auth.currentUser && auth.currentUser.isAnonymous) {
+                    await signOut(auth);
+                }
+                
+                // Now handle login with the specific wallet address
+                await handleLogin(walletAddress);
+
             } catch (error) {
                  console.error("Wallet connection failed:", error);
                 if (error.code === 4001) {
@@ -586,57 +603,70 @@
 
 
         // --- Auth State Logic ---
-        async function handleNewUser(user) {
-             userDocRef = doc(db, "users", user.uid);
-             const docSnap = await getDoc(userDocRef);
+        async function handleLogin(walletAddress) {
+            userDocRef = doc(db, "users", walletAddress);
+            const docSnap = await getDoc(userDocRef);
 
-             if (!docSnap.exists()) {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length > 0) {
-                     const referralId = localStorage.getItem('referralId');
-                     await setDoc(userDocRef, {
-                        wallet: accounts[0],
-                        score: 0,
-                        createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp(),
-                        loginStreak: 1, // Start streak at 1
-                        referredBy: referralId || null,
-                    });
-                    
-                    // Award bonus to referrer
-                    if (referralId && referralId !== user.uid) {
-                        const referrerDocRef = doc(db, "users", referralId);
-                        const referrerDoc = await getDoc(referrerDocRef);
-                        if(referrerDoc.exists()) {
-                            await updateDoc(referrerDocRef, { score: increment(50) });
-                        }
-                        localStorage.removeItem('referralId');
+            if (!docSnap.exists()) {
+                // New user flow
+                const referralId = localStorage.getItem('referralId');
+                await setDoc(userDocRef, {
+                    wallet: walletAddress,
+                    score: 0,
+                    createdAt: serverTimestamp(),
+                    lastLogin: serverTimestamp(),
+                    loginStreak: 1,
+                    referredBy: referralId || null,
+                });
+
+                if (referralId && referralId !== walletAddress) {
+                    const referrerDocRef = doc(db, "users", referralId);
+                    const referrerDoc = await getDoc(referrerDocRef);
+                    if (referrerDoc.exists()) {
+                        await updateDoc(referrerDocRef, { score: increment(50) });
                     }
-                    
-                    // Give new user their first daily bonus
-                     dailyBonusTitle.textContent = 'Welcome Bonus!';
-                     dailyBonusText.innerHTML = `You earned <span class="font-bold">+10</span> points!`;
-                     showModal(dailyBonusPopup);
-                     setTimeout(() => hideModal(dailyBonusPopup), 3000);
-                     await updateDoc(userDocRef, { score: increment(10) });
-
-
-                } else {
-                    signOut(auth);
                 }
+                localStorage.removeItem('referralId');
+                
+                // Show welcome bonus
+                updateStreakUI(1, true);
+                showModal(dailyBonusModal);
+
+            } else {
+                // Existing user flow
+                await checkForDailyBonus(docSnap);
             }
+
+            setupUserSession(walletAddress);
+        }
+        
+        function setupUserSession(walletAddress) {
+            currentUser = { uid: walletAddress }; // simplified user object
+            userDocRef = doc(db, "users", walletAddress);
+
+             if (scoreUnsubscribe) scoreUnsubscribe();
+            
+            scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    userDisplay.textContent = formatAddress(data.wallet);
+                    gameScoreDisplay.textContent = data.score || 0;
+
+                    authLinks.classList.add('hidden');
+                    userProfile.classList.remove('hidden');
+                    userProfile.classList.add('flex');
+                    gameSection.classList.remove('hidden');
+                }
+            });
         }
 
-        async function checkForDailyBonus(user) {
-            const userDoc = await getDoc(userDocRef);
-            if (!userDoc.exists()) return;
-
+        async function checkForDailyBonus(userDoc) {
             const userData = userDoc.data();
             const lastLogin = userData.lastLogin?.toDate();
             let streak = userData.loginStreak || 0;
             const now = new Date();
             
-            if (!lastLogin) return; // Should be handled by new user logic, but as a safeguard.
+            if (!lastLogin) return;
             
             const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
             const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -644,15 +674,56 @@
             const diffTime = todayDate.getTime() - lastLoginDate.getTime();
             const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
             
+            let canClaim = false;
             if (diffDays === 1) { // Continued streak
                 streak = (streak >= 7) ? 1 : streak + 1;
+                canClaim = true;
             } else if (diffDays > 1) { // Streak broken
                 streak = 1;
-            } else { // Same day login
-                return;
+                canClaim = true;
+            } // if diffDays is 0, they already logged in today.
+            
+            updateStreakUI(streak, canClaim);
+            if(canClaim) {
+                showModal(dailyBonusModal);
             }
+        }
+        
+        function updateStreakUI(streak, canClaim) {
+            streakGrid.innerHTML = '';
+            for (let i = 1; i <= 7; i++) {
+                const dayDiv = document.createElement('div');
+                const dayText = document.createElement('p');
+                dayText.textContent = `Day ${i}`;
+                dayText.className = 'font-bold';
+                const rewardText = document.createElement('p');
+                rewardText.textContent = `+${bonuses[i-1]}`;
+                rewardText.className = 'text-yellow-300 font-fredoka text-lg';
 
-            const bonuses = [10, 20, 30, 40, 50, 60, 100]; // Day 1 to 7
+                dayDiv.appendChild(dayText);
+                dayDiv.appendChild(rewardText);
+                dayDiv.className = 'p-2 rounded-lg';
+
+                if (i < streak) {
+                    dayDiv.classList.add('bg-green-700/50', 'opacity-60');
+                    dayText.textContent += ' ✅';
+                } else if (i === streak && canClaim) {
+                    dayDiv.classList.add('bg-yellow-500', 'ring-2', 'ring-white');
+                } else {
+                     dayDiv.classList.add('bg-gray-700/50');
+                }
+                streakGrid.appendChild(dayDiv);
+            }
+            claimBonusBtn.disabled = !canClaim;
+            claimBonusBtn.textContent = canClaim ? 'Claim Bonus' : 'Already Claimed';
+        }
+
+        claimBonusBtn.addEventListener('click', async () => {
+            if (!userDocRef) return;
+            claimBonusBtn.disabled = true;
+            
+            const userDoc = await getDoc(userDocRef);
+            const streak = userDoc.data().loginStreak || 1;
             const bonusAmount = bonuses[streak - 1];
 
             await updateDoc(userDocRef, {
@@ -660,63 +731,34 @@
                 lastLogin: serverTimestamp(),
                 loginStreak: streak
             });
+            hideModal(dailyBonusModal);
+        });
 
-            dailyBonusTitle.textContent = `Day ${streak} Streak!`;
-            dailyBonusText.innerHTML = `You earned <span class="font-bold">+${bonusAmount}</span> points!`;
-            showModal(dailyBonusPopup);
-            setTimeout(() => hideModal(dailyBonusPopup), 3000);
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-             if (scoreUnsubscribe) {
-                scoreUnsubscribe(); // Detach old listener
-            }
-
-            if (user && user.isAnonymous) {
-                userDocRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(userDocRef);
-                
-                if(!docSnap.exists()){
-                   await handleNewUser(user);
-                } else {
-                   await checkForDailyBonus(user);
-                }
-                
-                // Real-time listener for score
-                scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
-                    if (doc.exists()) {
-                        const data = doc.data();
-                        userDisplay.textContent = formatAddress(data.wallet);
-                        gameScoreDisplay.textContent = data.score || 0;
-
-                        authLinks.classList.add('hidden');
-                        userProfile.classList.remove('hidden');
-                        userProfile.classList.add('flex');
-                        gameSection.classList.remove('hidden');
-                    }
-                });
-
-            } else {
-                // User is signed out
-                authLinks.classList.remove('hidden');
-                userProfile.classList.add('hidden');
-                userProfile.classList.remove('flex');
-                gameSection.classList.add('hidden');
-                currentUser = null;
-                userDocRef = null;
-                stopGameLoop();
+        // Check on page load if a wallet was previously connected
+        window.addEventListener('load', async () => {
+            const connectedWallet = localStorage.getItem('connectedWallet');
+            if (connectedWallet) {
+                await handleLogin(connectedWallet);
             }
         });
 
+
         // Logout
         logoutBtn.addEventListener('click', async () => {
-            await signOut(auth);
+            localStorage.removeItem('connectedWallet');
+            currentUser = null;
+            userDocRef = null;
+            if (scoreUnsubscribe) scoreUnsubscribe();
+            
+            authLinks.classList.remove('hidden');
+            userProfile.classList.add('hidden');
+            userProfile.classList.remove('flex');
+            gameSection.classList.add('hidden');
+            stopGameLoop();
         });
 
     </script>
 
 </body>
 </html>
-"
 
