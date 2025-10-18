@@ -53,6 +53,9 @@
         .motivation-animation {
             animation: fade-in-out 4s ease-in-out forwards;
         }
+        .bonus-popup-animation {
+            animation: bonus-fade-in-out 3s ease-in-out forwards;
+        }
 
         @keyframes idle-breath {
             0%, 100% { transform: scale(1); }
@@ -64,6 +67,10 @@
         }
         @keyframes fade-in-out {
             0%, 100% { opacity: 0; transform: translateY(10px); }
+            10%, 90% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bonus-fade-in-out {
+            0%, 100% { opacity: 0; transform: translateY(20px); }
             10%, 90% { opacity: 1; transform: translateY(0); }
         }
         #power-bar-fill {
@@ -115,6 +122,9 @@
                 <button id="start-game-btn" class="bg-green-500 hover:bg-green-600 text-white font-fredoka text-xl md:text-2xl px-10 py-3 rounded-full transition transform hover:scale-105 glow-effect">
                     Start Training
                 </button>
+                <p class="mt-6 text-base text-cyan-300 max-w-2xl mx-auto">
+                    Your score in the gym will directly impact the size of your future $DNP airdrop. Train hard, warrior!
+                </p>
             </section>
         
             <!-- ======== Блок Описания ======== --><section id="about" class="bg-[#1e1e3f] p-6 md:p-8 rounded-2xl shadow-lg border-2 border-purple-500 transform hover:scale-105 transition-transform duration-300">
@@ -263,9 +273,16 @@
                     <label class="block text-gray-300 mb-2">Connected Wallet</label>
                     <p id="profile-wallet" class="text-lg text-green-400 font-mono break-words bg-gray-800/50 p-3 rounded-lg"></p>
                 </div>
-                <div class="mb-6">
+                <div class="mb-2">
                     <label class="block text-gray-300 mb-2">Total Score</label>
                     <p id="profile-score" class="text-2xl font-fredoka text-yellow-300"></p>
+                </div>
+                 <div class="mt-6">
+                    <label class="block text-gray-300 mb-2">Your Referral Link</label>
+                    <div class="flex">
+                        <input id="ref-link-input" type="text" readonly class="w-full bg-gray-800 border border-gray-700 rounded-l-lg p-2 text-gray-400 text-sm">
+                        <button id="copy-ref-link-btn" class="bg-green-500 hover:bg-green-600 px-3 rounded-r-lg text-white">Copy</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -295,6 +312,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Daily Bonus Popup --><div id="daily-bonus-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop">
+        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-8 rounded-2xl shadow-lg text-center text-gray-900 bonus-popup-animation">
+            <h2 class="font-fredoka text-3xl">Daily Bonus!</h2>
+            <p class="text-xl mt-2">You earned <span class="font-bold">+10</span> points!</p>
+        </div>
+    </div>
     
     <audio id="background-music" loop src="sound/sound.mp3"></audio>
 
@@ -315,7 +339,8 @@
             getDoc,
             updateDoc,
             increment,
-            onSnapshot
+            onSnapshot,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
@@ -344,6 +369,9 @@
         const gameSection = document.getElementById('game-section');
 
         const profileModal = document.getElementById('profile-modal');
+        const refLinkInput = document.getElementById('ref-link-input');
+        const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
+        const dailyBonusPopup = document.getElementById('daily-bonus-popup');
         
         // Game Elements
         const startGameBtn = document.getElementById('start-game-btn');
@@ -363,6 +391,17 @@
         let userDocRef = null;
         let scoreUnsubscribe = null; 
         let isSoundOn = false;
+
+        // --- Referral Logic ---
+        function handleReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refId = urlParams.get('ref');
+            if (refId) {
+                localStorage.setItem('referralId', refId);
+            }
+        }
+        handleReferral();
+
 
         // --- Modal & Overlay Logic ---
         function showModal(modal) { modal.classList.remove('hidden'); }
@@ -385,8 +424,16 @@
                 const data = docSnap.data();
                 document.getElementById('profile-wallet').textContent = data.wallet || 'N/A';
                 document.getElementById('profile-score').textContent = data.score || 0;
+                refLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${currentUser.uid}`;
             }
             showModal(profileModal);
+        });
+
+        copyRefLinkBtn.addEventListener('click', () => {
+            refLinkInput.select();
+            document.execCommand('copy');
+            copyRefLinkBtn.textContent = 'Copied!';
+            setTimeout(() => { copyRefLinkBtn.textContent = 'Copy'; }, 2000);
         });
         
         document.querySelectorAll('.modal-backdrop, .close-modal-btn').forEach(el => {
@@ -407,8 +454,7 @@
 
         connectWalletBtn.addEventListener('click', async () => {
             if (isMobile() && !window.ethereum) {
-                // On mobile, if MetaMask provider is not injected, try to open the app via deeplink.
-                const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + window.location.host; // Use host to include port if any
+                const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + window.location.host;
                 window.location.href = metamaskAppDeepLink;
                 return;
             }
@@ -536,6 +582,51 @@
 
 
         // --- Auth State Logic ---
+        async function handleNewUser(user) {
+             userDocRef = doc(db, "users", user.uid);
+             const docSnap = await getDoc(userDocRef);
+
+             if (!docSnap.exists()) {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                     const referralId = localStorage.getItem('referralId');
+                     await setDoc(userDocRef, {
+                        wallet: accounts[0],
+                        score: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp(),
+                        referredBy: referralId || null,
+                    });
+
+                    if (referralId && referralId !== user.uid) {
+                        const referrerDocRef = doc(db, "users", referralId);
+                        await updateDoc(referrerDocRef, { score: increment(50) });
+                        localStorage.removeItem('referralId');
+                    }
+                } else {
+                    signOut(auth);
+                }
+            }
+        }
+
+        async function checkForDailyBonus(user) {
+            const userDoc = await getDoc(userDocRef);
+            if (!userDoc.exists()) return;
+
+            const userData = userDoc.data();
+            const lastLogin = userData.lastLogin?.toDate();
+            const now = new Date();
+
+            if (!lastLogin || (now.getTime() - lastLogin.getTime() > 24 * 60 * 60 * 1000)) {
+                await updateDoc(userDocRef, {
+                    score: increment(10),
+                    lastLogin: serverTimestamp()
+                });
+                showModal(dailyBonusPopup);
+                setTimeout(() => hideModal(dailyBonusPopup), 3000);
+            }
+        }
+
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
              if (scoreUnsubscribe) {
@@ -543,29 +634,8 @@
             }
 
             if (user && user.isAnonymous) {
-                userDocRef = doc(db, "users", user.uid);
-                
-                const docSnap = await getDoc(userDocRef);
-                
-                if (!docSnap.exists()) {
-                    try {
-                        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                        if (accounts.length > 0) {
-                             await setDoc(userDocRef, {
-                                wallet: accounts[0],
-                                score: 0,
-                                createdAt: new Date()
-                            });
-                        } else {
-                             signOut(auth);
-                             return;
-                        }
-                    } catch(e) {
-                        console.error("Could not get accounts for new user setup", e);
-                        signOut(auth);
-                        return;
-                    }
-                }
+                await handleNewUser(user);
+                await checkForDailyBonus(user);
                 
                 // Real-time listener for score
                 scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
