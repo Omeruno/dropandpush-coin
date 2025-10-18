@@ -453,6 +453,7 @@
         const POWER_DECREASE_RATE = 1;
         let gameLoopInterval = null;
         let idleTimer = null;
+        let lastClickTime = 0;
         
         const candleStates = ['images/fire_red.png', 'images/fire_yellow.png', 'images/fire_green.png'];
         const motivationPhrases = ["Come on, bro!", "One more rep?", "Don't be weak!", "Push harder!"];
@@ -503,6 +504,13 @@
         
         candleCharContainer.addEventListener('click', async () => {
             if (!currentUser) return;
+
+            const now = Date.now();
+            if (now - lastClickTime < 50) { // Anti-autoclicker: 50ms cooldown
+                return;
+            }
+            lastClickTime = now;
+
             resetIdleTimer();
 
             powerLevel = Math.min(MAX_POWER, powerLevel + POWER_PER_TAP);
