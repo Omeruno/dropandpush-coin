@@ -284,7 +284,7 @@
                         <button id="copy-ref-link-btn" class="bg-green-500 hover:bg-green-600 px-3 rounded-r-lg text-white">Copy</button>
                     </div>
                 </div>
-                <button id="claim-bonus-in-profile-btn" class="hidden mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 rounded-lg">Claim Daily Bonus</button>
+                <button id="rewards-btn-in-profile" class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 rounded-lg">Daily Rewards</button>
             </div>
         </div>
     </div>
@@ -377,7 +377,7 @@
         const profileModal = document.getElementById('profile-modal');
         const refLinkInput = document.getElementById('ref-link-input');
         const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
-        const claimBonusInProfileBtn = document.getElementById('claim-bonus-in-profile-btn');
+        const rewardsBtnInProfile = document.getElementById('rewards-btn-in-profile');
         
         const dailyBonusModal = document.getElementById('daily-bonus-modal');
         const streakGrid = document.getElementById('streak-grid');
@@ -439,24 +439,15 @@
                 document.getElementById('profile-wallet').textContent = data.wallet || 'N/A';
                 document.getElementById('profile-score').textContent = data.score || 0;
                 refLinkInput.value = `${window.location.origin}${window.location.pathname}?ref=${data.wallet.toLowerCase()}`;
-                
-                const canClaim = await canUserClaimBonus();
-                if (canClaim) {
-                    claimBonusInProfileBtn.classList.remove('hidden');
-                } else {
-                    claimBonusInProfileBtn.classList.add('hidden');
-                }
             }
             showModal(profileModal);
         });
         
-        claimBonusInProfileBtn.addEventListener('click', async () => {
+        rewardsBtnInProfile.addEventListener('click', async () => {
             hideModal(profileModal);
             const canClaim = await canUserClaimBonus();
-            if(canClaim) {
-                const userDoc = await getDoc(userDocRef);
-                await checkForDailyBonus(userDoc);
-            }
+            const userDoc = await getDoc(userDocRef);
+            await checkForDailyBonus(userDoc, true); // Force open
         });
 
         copyRefLinkBtn.addEventListener('click', () => {
@@ -631,7 +622,6 @@
                     referredBy: referralId || null,
                 });
                 
-                // Now check for bonus as if they are an existing user
                 const newUserDoc = await getDoc(userDocRef);
                 await checkForDailyBonus(newUserDoc);
 
@@ -689,15 +679,15 @@
             return today > lastLoginDay;
         }
 
-        async function checkForDailyBonus(userDoc) {
+        async function checkForDailyBonus(userDoc, forceShow = false) {
             const canClaim = await canUserClaimBonus();
             
-            if (canClaim) {
+            if (canClaim || forceShow) {
                 const userData = userDoc.data();
                 const lastLogin = userData.lastLogin?.toDate();
                 let streak = userData.loginStreak || 0;
                 
-                if (lastLogin) {
+                if (lastLogin && canClaim) {
                     const lastLoginDay = new Date(lastLogin);
                     lastLoginDay.setUTCHours(0,0,0,0);
                     const today = new Date();
@@ -711,14 +701,17 @@
                     } else if (diffDays > 1) { 
                         streak = 1;
                     }
-                } else { // First login
+                } else if (!lastLogin) { // First login
                     streak = 1;
                 }
 
-                updateStreakUI(streak, true);
+                updateStreakUI(streak, canClaim);
                 showModal(dailyBonusModal);
-                clearTimeout(bonusModalTimeout);
-                bonusModalTimeout = setTimeout(() => hideModal(dailyBonusModal), 30000);
+
+                if (canClaim && !forceShow) {
+                    clearTimeout(bonusModalTimeout);
+                    bonusModalTimeout = setTimeout(() => hideModal(dailyBonusModal), 30000);
+                }
             }
         }
         
