@@ -313,10 +313,10 @@
         </div>
     </div>
 
-    <!-- Daily Bonus Popup --><div id="daily-bonus-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop">
-        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-8 rounded-2xl shadow-lg text-center text-gray-900 bonus-popup-animation">
-            <h2 class="font-fredoka text-3xl">Daily Bonus!</h2>
-            <p class="text-xl mt-2">You earned <span class="font-bold">+10</span> points!</p>
+    <!-- Daily Bonus Popup --><div id="daily-bonus-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-8 rounded-2xl shadow-lg text-center text-gray-900 bonus-popup-animation w-full max-w-sm">
+            <h2 id="daily-bonus-title" class="font-fredoka text-3xl">Daily Bonus!</h2>
+            <p id="daily-bonus-text" class="text-xl mt-2">You earned <span class="font-bold">+10</span> points!</p>
         </div>
     </div>
     
@@ -372,6 +372,8 @@
         const refLinkInput = document.getElementById('ref-link-input');
         const copyRefLinkBtn = document.getElementById('copy-ref-link-btn');
         const dailyBonusPopup = document.getElementById('daily-bonus-popup');
+        const dailyBonusTitle = document.getElementById('daily-bonus-title');
+        const dailyBonusText = document.getElementById('daily-bonus-text');
         
         // Game Elements
         const startGameBtn = document.getElementById('start-game-btn');
@@ -397,6 +399,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const refId = urlParams.get('ref');
             if (refId) {
+                // Clear previous ref if any, to avoid using old ones
+                localStorage.removeItem('referralId');
                 localStorage.setItem('referralId', refId);
             }
         }
@@ -595,14 +599,28 @@
                         score: 0,
                         createdAt: serverTimestamp(),
                         lastLogin: serverTimestamp(),
+                        loginStreak: 1, // Start streak at 1
                         referredBy: referralId || null,
                     });
-
+                    
+                    // Award bonus to referrer
                     if (referralId && referralId !== user.uid) {
                         const referrerDocRef = doc(db, "users", referralId);
-                        await updateDoc(referrerDocRef, { score: increment(50) });
+                        const referrerDoc = await getDoc(referrerDocRef);
+                        if(referrerDoc.exists()) {
+                            await updateDoc(referrerDocRef, { score: increment(50) });
+                        }
                         localStorage.removeItem('referralId');
                     }
+                    
+                    // Give new user their first daily bonus
+                     dailyBonusTitle.textContent = 'Welcome Bonus!';
+                     dailyBonusText.innerHTML = `You earned <span class="font-bold">+10</span> points!`;
+                     showModal(dailyBonusPopup);
+                     setTimeout(() => hideModal(dailyBonusPopup), 3000);
+                     await updateDoc(userDocRef, { score: increment(10) });
+
+
                 } else {
                     signOut(auth);
                 }
@@ -615,16 +633,38 @@
 
             const userData = userDoc.data();
             const lastLogin = userData.lastLogin?.toDate();
+            let streak = userData.loginStreak || 0;
             const now = new Date();
+            
+            if (!lastLogin) return; // Should be handled by new user logic, but as a safeguard.
+            
+            const lastLoginDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
+            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            if (!lastLogin || (now.getTime() - lastLogin.getTime() > 24 * 60 * 60 * 1000)) {
-                await updateDoc(userDocRef, {
-                    score: increment(10),
-                    lastLogin: serverTimestamp()
-                });
-                showModal(dailyBonusPopup);
-                setTimeout(() => hideModal(dailyBonusPopup), 3000);
+            const diffTime = todayDate.getTime() - lastLoginDate.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) { // Continued streak
+                streak = (streak >= 7) ? 1 : streak + 1;
+            } else if (diffDays > 1) { // Streak broken
+                streak = 1;
+            } else { // Same day login
+                return;
             }
+
+            const bonuses = [10, 20, 30, 40, 50, 60, 100]; // Day 1 to 7
+            const bonusAmount = bonuses[streak - 1];
+
+            await updateDoc(userDocRef, {
+                score: increment(bonusAmount),
+                lastLogin: serverTimestamp(),
+                loginStreak: streak
+            });
+
+            dailyBonusTitle.textContent = `Day ${streak} Streak!`;
+            dailyBonusText.innerHTML = `You earned <span class="font-bold">+${bonusAmount}</span> points!`;
+            showModal(dailyBonusPopup);
+            setTimeout(() => hideModal(dailyBonusPopup), 3000);
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -634,8 +674,14 @@
             }
 
             if (user && user.isAnonymous) {
-                await handleNewUser(user);
-                await checkForDailyBonus(user);
+                userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                
+                if(!docSnap.exists()){
+                   await handleNewUser(user);
+                } else {
+                   await checkForDailyBonus(user);
+                }
                 
                 // Real-time listener for score
                 scoreUnsubscribe = onSnapshot(userDocRef, (doc) => {
@@ -672,4 +718,5 @@
 
 </body>
 </html>
+"
 
