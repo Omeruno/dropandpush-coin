@@ -91,8 +91,7 @@
                      <a href="manifesto.html" class="text-gray-300 hover:text-white px-3 py-1 rounded-md text-sm font-medium md:text-[#a8ff78] md:border md:border-[#a8ff78] md:rounded-full md:hover:bg-[#a8ff78] md:hover:text-gray-900 md:transition-colors">Manifesto</a>
                 
                     <div id="auth-links" class="flex items-center">
-                         <button id="connect-wallet-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-1 px-2 text-xs rounded-full transition md:py-2 md:px-4 md:text-base md:glow-effect md:flex md:items-center md:space-x-2">
-                            <svg class="w-5 h-5 hidden md:inline" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM11.4111 12.0125L11.4087 12.0101L11.4055 12.007L11.4016 12.0031C11.3323 11.9332 11.2753 11.8341 11.2753 11.7288V7.54518C11.2753 7.33764 11.517 7.21443 11.6836 7.32018L15.3414 9.61199C15.5097 9.71884 15.5097 9.96752 15.3414 10.0744L11.6836 12.3662C11.517 12.4719 11.2753 12.3487 11.2753 12.1412V12.1412V12.0125H11.4111ZM11.4111 12.0125V16.6346C11.4111 16.8421 11.1694 16.9653 11.0028 16.8596L7.34499 14.5678C7.17666 14.4609 7.17666 14.2123 7.34499 14.1054L11.0028 11.8136C11.1694 11.7079 11.4111 11.8311 11.4111 12.0386V12.0125Z" fill="currentColor"/></svg>
+                         <button id="connect-wallet-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold py-1 px-2 text-xs rounded-full transition md:py-2 md:px-4 md:text-base md:rounded-lg md:glow-effect">
                             <span>Connect Wallet</span>
                         </button>
                     </div>
@@ -663,11 +662,15 @@
                     userProfile.classList.remove('hidden');
                     userProfile.classList.add('flex');
                     gameSection.classList.remove('hidden');
+                } else {
+                     // Handle case where user doc doesn't exist but they are "logged in"
+                     logoutBtn.click(); // Force logout if data is missing
                 }
             });
         }
 
         function toUTCDateString(date) {
+             if (!date) return null;
             return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
         }
 
@@ -678,7 +681,7 @@
             
             const userData = userDoc.data();
             const lastLogin = userData.lastLogin?.toDate();
-            if(!lastLogin) return true;
+            if(!lastLogin) return true; // User exists but has never claimed (e.g., first login)
 
             const lastLoginDay = toUTCDateString(lastLogin);
             const today = toUTCDateString(new Date());
@@ -687,12 +690,13 @@
         }
 
         async function checkForDailyBonus(userDoc, forceShow = false) {
+             if (!userDoc || !userDoc.exists()) return; // Ensure userDoc exists
             const canClaim = await canUserClaimBonus();
             const userData = userDoc.data();
             let streak = userData.loginStreak || 0;
+            const lastLogin = userData.lastLogin?.toDate();
 
             if (canClaim) {
-                const lastLogin = userData.lastLogin?.toDate();
                 if (lastLogin) {
                     const lastLoginDay = new Date(lastLogin);
                     lastLoginDay.setUTCHours(0,0,0,0);
@@ -700,14 +704,15 @@
                     today.setUTCHours(0,0,0,0);
 
                     const diffTime = today.getTime() - lastLoginDay.getTime();
-                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                    // Allow for minor timezone differences by checking <= 1 day difference for reset
+                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
                 
                     if (diffDays === 1) { 
                         streak = (streak >= 7) ? 1 : streak + 1;
-                    } else { // Streak broken or first login
+                    } else { // Streak broken (>1 day) or first login (diffDays could be large if lastLogin was null)
                         streak = 1;
                     }
-                } else { // First ever login
+                } else { // First ever login for this user doc
                     streak = 1;
                 }
             }
@@ -716,6 +721,7 @@
                 updateStreakUI(streak, canClaim);
                 showModal(dailyBonusModal);
 
+                // Only set timeout if it's the automatic popup, not forced via profile
                 if (canClaim && !forceShow) {
                     clearTimeout(bonusModalTimeout);
                     bonusModalTimeout = setTimeout(() => hideModal(dailyBonusModal), 30000);
@@ -729,24 +735,23 @@
                 const dayDiv = document.createElement('div');
                 const dayText = document.createElement('p');
                 dayText.textContent = `Day ${i}`;
-                dayText.className = 'font-bold';
+                dayText.className = 'font-bold text-sm'; // Smaller text
                 const rewardText = document.createElement('p');
                 rewardText.textContent = `+${bonuses[i-1]}`;
-                rewardText.className = 'text-yellow-300 font-fredoka text-lg';
+                rewardText.className = 'text-yellow-300 font-fredoka text-base'; // Smaller text
 
                 dayDiv.appendChild(dayText);
                 dayDiv.appendChild(rewardText);
-                dayDiv.className = 'p-2 rounded-lg';
+                dayDiv.className = 'p-1 md:p-2 rounded-lg text-center'; // Adjusted padding
 
-                if (!canClaim && i <= streak) { // Previously claimed days
+                if (!canClaim && i <= streak) { // Previously claimed days in current streak
                     dayDiv.classList.add('bg-green-700/50', 'opacity-60');
-                    dayText.textContent += ' ✅';
-                } else if (canClaim && i < streak) { // Streak was broken and reset
-                     dayDiv.classList.add('bg-gray-700/50');
-                }
-                else if (i === streak && canClaim) {
+                    // dayText.textContent += ' ✅'; // Removed checkmark for cleaner look
+                } else if (canClaim && i === streak) { // Day to be claimed
                     dayDiv.classList.add('bg-yellow-500', 'ring-2', 'ring-white');
-                } else {
+                } else if (!canClaim && i > streak) { // Future days in claimed streak
+                     dayDiv.classList.add('bg-gray-700/50');
+                } else { // Future days if claimable today OR past days if streak broken
                      dayDiv.classList.add('bg-gray-700/50');
                 }
                 streakGrid.appendChild(dayDiv);
@@ -757,6 +762,9 @@
 
         claimBonusBtn.addEventListener('click', async () => {
             if (!userDocRef) return;
+             const canClaim = await canUserClaimBonus(); // Double check before claiming
+             if (!canClaim) return;
+
             claimBonusBtn.disabled = true;
             
             const userDoc = await getDoc(userDocRef);
@@ -781,22 +789,57 @@
 
             const bonusAmount = bonuses[streak - 1];
 
-            await updateDoc(userDocRef, {
-                score: increment(bonusAmount),
-                lastLogin: serverTimestamp(),
-                loginStreak: streak
-            });
-            hideModal(dailyBonusModal);
-            clearTimeout(bonusModalTimeout);
+            try {
+                await updateDoc(userDocRef, {
+                    score: increment(bonusAmount),
+                    lastLogin: serverTimestamp(),
+                    loginStreak: streak
+                });
+                hideModal(dailyBonusModal);
+                clearTimeout(bonusModalTimeout);
+                 // Immediately update UI to show claimed status
+                updateStreakUI(streak, false);
+            } catch (error) {
+                console.error("Error claiming bonus:", error);
+                claimBonusBtn.disabled = false; // Re-enable button on error
+                alert("Could not claim bonus. Please try again.");
+            }
         });
 
         // Check on page load if a wallet was previously connected
         window.addEventListener('load', async () => {
             const connectedWallet = localStorage.getItem('connectedWallet');
             if (connectedWallet) {
-                await handleLogin(connectedWallet);
+                // Try to reconnect silently first
+                if (window.ethereum && window.ethereum.isConnected() && (await window.ethereum.request({method: 'eth_accounts'})).length > 0) {
+                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                     if (accounts[0].toLowerCase() === connectedWallet) {
+                         await handleLogin(connectedWallet);
+                         return; // Successfully reconnected
+                     }
+                }
+                // If silent reconnect fails, clear storage and show connect button
+                localStorage.removeItem('connectedWallet');
+                logoutBtn.click(); // Trigger logout flow
             }
         });
+
+
+        // Handle wallet account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                 console.log('Accounts changed:', accounts);
+                 if (accounts.length === 0) {
+                     // User disconnected wallet, treat as logout
+                     logoutBtn.click();
+                 } else {
+                     // User switched account
+                     const newWalletAddress = accounts[0].toLowerCase();
+                     localStorage.setItem('connectedWallet', newWalletAddress);
+                     handleLogin(newWalletAddress); // Re-login with new account
+                 }
+            });
+        }
 
 
         // Logout
@@ -811,6 +854,7 @@
             userProfile.classList.remove('flex');
             gameSection.classList.add('hidden');
             stopGameLoop();
+             console.log("User logged out");
         });
 
     </script>
