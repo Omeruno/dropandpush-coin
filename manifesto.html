@@ -9,17 +9,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        html {
+             scroll-behavior: smooth; /* Плавный скролл */
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1a1a2e;
             color: #fff;
+            overflow-x: hidden; /* Предотвратить горизонтальный скролл из-за анимаций */
         }
         .font-fredoka {
             font-family: 'Fredoka One', cursive;
         }
         .text-stroke {
-            -webkit-text-stroke: 1px #a8ff78; /* Исправлено */
+            -webkit-text-stroke: 1px #a8ff78;
             color: transparent;
+        }
+        /* Стили для анимации появления при скролле */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -41,68 +55,68 @@
         <div class="space-y-16 md:space-y-24 max-w-5xl mx-auto">
 
             <!-- Section 1 -->
-            <section class="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <section class="scroll-reveal flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
                 <div class="md:w-1/2">
                     <h2 class="font-fredoka text-4xl md:text-5xl text-white leading-tight">THE <span class="text-[#a8ff78]">$DNP</span> MANIFESTO</h2>
                     <p class="mt-4 text-2xl md:text-3xl font-bold text-red-500">99% OF MEME COINS ARE TRASH.</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="images/the_dnp_manifesto.png" alt="DNP Manifesto" class="rounded-lg shadow-2xl">
+                    <img src="images/the_dnp_manifesto.png" alt="DNP Manifesto" class="w-full rounded-2xl shadow-2xl">
                 </div>
             </section>
 
             <!-- Section 2 -->
-            <section class="flex flex-col md:flex-row-reverse items-center gap-8 text-center md:text-right">
+            <section class="scroll-reveal flex flex-col md:flex-row-reverse items-center gap-8 text-center md:text-right">
                 <div class="md:w-1/2">
                     <h2 class="font-fredoka text-3xl md:text-4xl text-[#a8ff78]">OUR DIFFERENCE:</h2>
                     <p class="mt-2 text-2xl font-bold text-white">WE HAVE A GAME. RIGHT NOW.</p>
                     <p class="mt-4 text-lg text-gray-300">We're not asking you to trust our words. We're giving you a product <b>BEFORE</b> the token launch. "Tap-to-Pump" is your proof-of-commitment.</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="images/our_difference.png" alt="We have a game" class="rounded-lg shadow-2xl">
+                    <img src="images/our_difference.png" alt="We have a game" class="w-full rounded-2xl shadow-2xl">
                 </div>
             </section>
 
             <!-- Section 3 -->
-            <section class="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <section class="scroll-reveal flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
                 <div class="md:w-1/2">
                     <h2 class="font-fredoka text-3xl md:text-4xl text-[#a8ff78]">OUR PHILOSOPHY:</h2>
                     <p class="mt-2 text-2xl font-bold text-white">STRENGTH IN THE DROP.</p>
                     <p class="mt-4 text-lg text-gray-300">Everyone shouts "wen moon?". We ask "how many reps did you do on that dump?". A red candle isn't a reason to panic. It's a reason to train.</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="images/our_philosophy.png" alt="Strength in the drop" class="rounded-lg shadow-2xl">
+                    <img src="images/our_philosophy.png" alt="Strength in the drop" class="w-full rounded-2xl shadow-2xl">
                 </div>
             </section>
             
             <!-- Section 4 -->
-            <section class="flex flex-col md:flex-row-reverse items-center gap-8 text-center md:text-right">
+            <section class="scroll-reveal flex flex-col md:flex-row-reverse items-center gap-8 text-center md:text-right">
                 <div class="md:w-1/2">
                     <h2 class="font-fredoka text-3xl md:text-4xl text-[#a8ff78]">YOUR EFFORT =</h2>
                     <p class="mt-2 text-2xl font-bold text-white">YOUR REWARD. FAIR AND SQUARE.</p>
                     <p class="mt-4 text-lg text-gray-300">We won't airdrop to randoms. We will reward those who were with us from the start. Your score, your referrals, your daily logins — they all matter.</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="images/your_effort.png" alt="Your effort is your reward" class="rounded-lg shadow-2xl">
+                    <img src="images/your_effort.png" alt="Your effort is your reward" class="w-full rounded-2xl shadow-2xl">
                 </div>
             </section>
 
             <!-- Section 5 -->
-            <section class="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <section class="scroll-reveal flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
                 <div class="md:w-1/2">
                      <h2 class="font-fredoka text-3xl md:text-4xl text-[#a8ff78]">TOKENOMICS:</h2>
                     <p class="mt-2 text-2xl font-bold text-white">FOR THE PEOPLE.</p>
                     <p class="mt-4 text-lg text-gray-300">Total Supply: 10,000,000,000 $DNP</p>
                 </div>
                 <div class="md:w-1/2">
-                    <img src="images/tokenomics.png" alt="Tokenomics" class="rounded-lg shadow-2xl">
+                    <img src="images/tokenomics.png" alt="Tokenomics" class="w-full rounded-2xl shadow-2xl">
                 </div>
             </section>
 
             <!-- Section 6 -->
-             <section class="text-center py-12">
+             <section class="scroll-reveal text-center py-12">
                 <div class="relative flex justify-center items-center">
-                    <img src="images/how_to_join.png" alt="How to join the army" class="w-full max-w-4xl rounded-lg shadow-2xl">
+                    <img src="images/how_to_join.png" alt="How to join the army" class="w-full max-w-4xl rounded-2xl shadow-2xl">
                     <a href="index.html" class="absolute bottom-[14%] left-1/2 -translate-x-1/2 bg-green-500 hover:bg-green-600 text-gray-900 font-bold py-2 px-8 md:py-3 md:px-10 rounded-lg text-lg md:text-xl transition transform hover:scale-105">
                         JOIN NOW
                     </a>
@@ -110,6 +124,42 @@
             </section>
         </div>
     </main>
+    
+    <script>
+        // Простая реализация эффекта появления при скролле
+        const scrollElements = document.querySelectorAll('.scroll-reveal');
+
+        const elementInView = (el, dividend = 1) => {
+            const elementTop = el.getBoundingClientRect().top;
+            return (
+                elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+            );
+        };
+
+        const displayScrollElement = (element) => {
+            element.classList.add('visible');
+        };
+
+        const hideScrollElement = (element) => {
+             element.classList.remove('visible');
+        }
+
+        const handleScrollAnimation = () => {
+            scrollElements.forEach((el) => {
+                if (elementInView(el, 1.1)) { // Появляется чуть раньше, чем дойдет до середины экрана
+                    displayScrollElement(el);
+                } 
+                // Опционально: скрывать, когда уходит из вида (раскомментировать, если нужно)
+                // else {
+                //     hideScrollElement(el);
+                // }
+            })
+        }
+
+        // Запускаем проверку при загрузке и при каждом скролле
+        window.addEventListener('load', handleScrollAnimation);
+        window.addEventListener('scroll', handleScrollAnimation);
+    </script>
 
 </body>
 </html>
