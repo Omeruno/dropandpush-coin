@@ -17,9 +17,47 @@
         .font-fredoka {
             font-family: 'Fredoka One', cursive;
         }
-         .glow-effect {
-            box-shadow: 0 0 5px #a8ff78, 0 0 15px #a8ff78, 0 0 25px #a8ff78, 0 0 35px #a8ff78;
+         .glow-effect-strong {
+            box-shadow: 0 0 8px #a8ff78, 0 0 20px #a8ff78, 0 0 35px #a8ff78;
         }
+        /* Custom progress bar */
+        progress {
+            accent-color: #a8ff78; /* Green accent */
+            height: 1rem; /* Увеличил высоту */
+        }
+        progress::-webkit-progress-bar {
+           background-color: #3a3a5e; /* Dark purple/gray background */
+           border-radius: 9999px;
+        }
+        progress::-webkit-progress-value {
+           background: linear-gradient(to right, #a8ff78, #79c168); /* Green gradient */
+           border-radius: 9999px;
+           transition: width 0.5s ease-in-out;
+        }
+         progress::-moz-progress-bar {
+           background: linear-gradient(to right, #a8ff78, #79c168); /* Green gradient */
+           border-radius: 9999px;
+           transition: width 0.5s ease-in-out;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield; /* Firefox */
+          font-size: 1.125rem; /* Увеличил размер шрифта в поле ввода */
+        }
+        /* Анимация появления */
+        .fade-in {
+            animation: fadeInAnimation 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInAnimation {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
     </style>
 </head>
 <body>
@@ -38,46 +76,172 @@
     </nav>
 
     <main class="container mx-auto p-4 md:p-8">
-        <header class="text-center py-12">
+        <header class="text-center py-12 fade-in">
              <h1 class="font-fredoka text-5xl md:text-7xl text-white drop-shadow-lg">
                 $DNP <span class="text-[#a8ff78]">PRESALE</span>
             </h1>
-            <p class="mt-4 text-xl md:text-2xl font-bold text-gray-300">
-                Get Ready to Join the $DNP Army Early!
+            <p class="mt-4 text-xl md:text-2xl font-bold text-gray-300 max-w-2xl mx-auto">
+                Be the First to Join the $DNP Army! Secure Your Tokens Now.
             </p>
         </header>
 
-        <section class="bg-[#1e1e3f] p-6 md:p-10 rounded-2xl shadow-lg border-2 border-yellow-400 max-w-3xl mx-auto">
-            <h2 class="font-fredoka text-3xl md:text-4xl text-center mb-6 text-yellow-300">PRESALE DETAILS COMING SOON!</h2>
+        <section class="bg-gradient-to-br from-[#1e1e3f] to-[#2a2a4e] p-6 md:p-10 rounded-3xl shadow-2xl border-2 border-[#a8ff78]/50 max-w-2xl mx-auto fade-in" style="animation-delay: 0.2s;">
             
-            <div class="text-center text-gray-300 space-y-4 text-lg">
-                <p>We are preparing everything for the official $DNP token presale.</p>
-                <p>This will be your chance to get $DNP tokens before they hit the open market on Uniswap.</p>
-                <p class="font-bold text-white">Early supporters who participate in the presale might receive exclusive benefits!</p>
-                <p>Stay tuned to our official channels for the exact date, price, and instructions.</p>
+            <div class="text-center mb-8">
+                <p class="text-lg text-yellow-300 font-bold">PRESALE IS NOT LIVE YET!</p>
+                <p class="text-gray-400 text-sm">Details below are for demonstration purposes only.</p>
             </div>
 
-            <div class="mt-8 text-center">
-                 <h3 class="font-fredoka text-2xl mb-4 text-gray-300">Follow us:</h3>
-                <div class="flex justify-center space-x-6">
-                    <!-- Telegram --><a href="https://t.me/DropNpushCoin" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.51 .71l-4.84-3.56l-2.31 2.24c-.25.24-.45.44-.88.44l.28-4.23z"/></svg>
-                    </a>
-                    <!-- X (Twitter) --><a href="https://x.com/DropNpushCoin" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M18.901 1.153h3.682L14.402 9.77l8.47 13.076h-7.062L10.098 13.12 3.998 22.846H.316L9.366 11.23L.863 1.153h7.119l4.57 6.64L18.901 1.153zm-1.077 20.3L6.815 3.01H5.435l11.411 18.443h1.363z"/></svg>
-                    </a>
-                    <!-- Email --><a href="mailto:dnp.official.contact@proton.me" class="text-gray-400 hover:text-white transform hover:scale-125 transition-transform">
-                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
-                    </a>
-                </div>
+            <!-- Connect Wallet Button -->
+            <div class="mb-8 text-center">
+                 <button id="connect-presale-wallet-btn" class="bg-[#a8ff78] hover:bg-green-400 text-gray-900 font-bold text-lg py-3 px-8 rounded-full transition transform hover:scale-105 glow-effect-strong inline-flex items-center">
+                    <span>Connect Wallet to Participate</span>
+                </button>
+                <p id="connected-wallet-display" class="hidden mt-3 text-sm text-green-400 font-mono"></p>
             </div>
 
-            <div class="mt-10 text-center">
+            <!-- Presale Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-center">
+                 <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-700">
+                    <p class="text-sm text-gray-400 mb-1">Presale Price</p>
+                    <p class="font-bold text-xl text-white">1 ETH = 10,000,000 $DNP</p>
+                 </div>
+                 <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-700">
+                    <p class="text-sm text-gray-400 mb-1">Your Contribution</p>
+                    <p class="font-bold text-xl text-white"><span id="your-contribution">0</span> ETH</p>
+                 </div>
+            </div>
+
+             <!-- Purchase Input -->
+             <div class="mb-8">
+                 <label for="eth-amount" class="block text-sm font-medium text-gray-300 mb-2">Amount in ETH to Buy</label>
+                 <div class="relative mt-1 rounded-xl shadow-sm">
+                    <input type="number" name="eth-amount" id="eth-amount" class="block w-full rounded-xl border-0 py-4 pl-5 pr-16 bg-gray-900/70 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-[#a8ff78] sm:text-lg" placeholder="0.1" step="0.01" min="0.01">
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                      <span class="text-gray-500 sm:text-sm font-bold">ETH</span>
+                    </div>
+                 </div>
+                 <p class="mt-2 text-right text-sm text-gray-400">You will receive: <span id="dnp-receive-amount" class="font-bold text-white text-base">0</span> $DNP</p>
+             </div>
+
+             <!-- Progress Bar -->
+             <div class="mb-8">
+                 <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400 font-medium">Presale Progress</span>
+                    <span class="font-medium text-white"><span id="current-raised">5.5</span> ETH / <span id="total-goal">50</span> ETH</span>
+                 </div>
+                 <progress id="presale-progress" class="w-full h-4 rounded-full overflow-hidden" value="5.5" max="50"></progress>
+             </div>
+
+            <!-- Buy Button -->
+            <button id="buy-dnp-btn" class="w-full bg-gradient-to-r from-[#a8ff78] to-green-400 hover:opacity-90 text-gray-900 font-fredoka text-2xl py-4 rounded-xl transition transform hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                BUY $DNP (Coming Soon)
+            </button>
+            <p id="presale-message" class="text-center mt-4 text-sm text-red-500"></p>
+
+            <div class="mt-12 text-center">
                 <a href="index.html" class="text-[#a8ff78] hover:underline">&larr; Back to Home</a>
             </div>
 
         </section>
     </main>
+    
+    <script type="module">
+        const connectBtn = document.getElementById('connect-presale-wallet-btn');
+        const connectedWalletDisplay = document.getElementById('connected-wallet-display');
+        const ethAmountInput = document.getElementById('eth-amount');
+        const dnpReceiveAmount = document.getElementById('dnp-receive-amount');
+        const buyBtn = document.getElementById('buy-dnp-btn');
+        const presaleMessage = document.getElementById('presale-message');
+        const yourContributionDisplay = document.getElementById('your-contribution');
+        const currentRaisedDisplay = document.getElementById('current-raised');
+        const totalGoalDisplay = document.getElementById('total-goal');
+        const progressBar = document.getElementById('presale-progress');
+
+        const PRESALE_RATE = 10000000; // 1 ETH = 10,000,000 DNP (Example rate)
+        let connectedAccount = null;
+
+        // --- Mock Data ---
+        // Replace these with real data fetching when the presale contract is live
+        const MOCK_TOTAL_RAISED = 5.5; 
+        const MOCK_PRESALE_GOAL = 50;
+        let MOCK_USER_CONTRIBUTION = 0; // Will be updated on connect
+
+        // --- Functions ---
+        function formatAddress(address) {
+            if (!address) return '';
+            return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        }
+
+        function updateUI() {
+            if (connectedAccount) {
+                connectBtn.textContent = 'Wallet Connected';
+                connectBtn.disabled = true;
+                connectBtn.classList.remove('glow-effect-strong');
+                connectedWalletDisplay.textContent = `Connected: ${formatAddress(connectedAccount)}`;
+                connectedWalletDisplay.classList.remove('hidden');
+                buyBtn.disabled = false; // Enable buy button when connected (for demo)
+                yourContributionDisplay.textContent = MOCK_USER_CONTRIBUTION; // Show mock contribution
+            } else {
+                 connectBtn.innerHTML = `<span>Connect Wallet to Participate</span>`; // Removed SVG
+                 connectBtn.disabled = false;
+                 connectBtn.classList.add('glow-effect-strong');
+                 connectedWalletDisplay.classList.add('hidden');
+                 buyBtn.disabled = true; // Disable buy if not connected
+                 yourContributionDisplay.textContent = 0;
+            }
+            
+            // Update progress bar (using mock data)
+            currentRaisedDisplay.textContent = MOCK_TOTAL_RAISED;
+            totalGoalDisplay.textContent = MOCK_PRESALE_GOAL;
+            progressBar.value = MOCK_TOTAL_RAISED;
+            progressBar.max = MOCK_PRESALE_GOAL;
+
+             // Calculate DNP amount
+            const ethAmount = parseFloat(ethAmountInput.value) || 0;
+            dnpReceiveAmount.textContent = (ethAmount * PRESALE_RATE).toLocaleString(); 
+        }
+
+        async function connectWallet() {
+             if (typeof window.ethereum === 'undefined') {
+                presaleMessage.textContent = 'MetaMask is not installed. Please install it.';
+                return;
+            }
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                connectedAccount = accounts[0];
+                // In a real scenario, you'd fetch the user's contribution based on connectedAccount here
+                MOCK_USER_CONTRIBUTION = 0.5; // Example: This user contributed 0.5 ETH
+                updateUI();
+                presaleMessage.textContent = ''; 
+            } catch (error) {
+                console.error("Failed to connect wallet:", error);
+                presaleMessage.textContent = 'Failed to connect wallet. Please try again.';
+                connectedAccount = null;
+                updateUI();
+            }
+        }
+        
+        // --- Event Listeners ---
+        connectBtn.addEventListener('click', connectWallet);
+        
+        ethAmountInput.addEventListener('input', updateUI);
+
+        buyBtn.addEventListener('click', () => {
+             // --- !!! IMPORTANT !!! ---
+             // This is where the actual buy transaction logic would go.
+             // It would involve interacting with a presale smart contract.
+             // For now, it just shows a "Coming Soon" message.
+             presaleMessage.textContent = 'Presale is not live yet. Stay tuned!';
+             setTimeout(() => { presaleMessage.textContent = ''; }, 3000);
+        });
+
+        // Initial UI Update
+        updateUI();
+        buyBtn.disabled = true; // Ensure button is disabled initially
+        buyBtn.textContent = 'BUY $DNP (Coming Soon)';
+
+    </script>
 
 </body>
 </html>
